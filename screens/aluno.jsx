@@ -113,14 +113,15 @@ const ContentCarousel = ({ go }) => {
           </button>
         )}
         <div ref={scrollRef} onScroll={checkScroll} className="no-scrollbar"
-          style={{ display: "flex", gap: 14, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 4 }}>
+          style={{ display: "flex", gap: 14, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 4, alignItems: "stretch" }}>
           {ALUNO_TRILHAS.map(t => (
             <button key={t.id} onClick={() => go("trilha", { trilhaId: t.id })} style={{
               flexShrink: 0, width: 252, borderRadius: 16, overflow: "hidden",
               background: "var(--surface)", boxShadow: "var(--shadow-card)",
-              textAlign: "left", scrollSnapAlign: "start", border: "none", cursor: "pointer"
+              textAlign: "left", scrollSnapAlign: "start", border: "none", cursor: "pointer",
+              display: "flex", flexDirection: "column",
             }}>
-              <div style={{ height: 128, background: t.capa, position: "relative" }}>
+              <div style={{ height: 128, background: t.capa, position: "relative", flexShrink: 0 }}>
                 {t.recomendado && (
                   <span style={{ position: "absolute", top: 12, right: 12, padding: "3px 9px", background: "rgba(255,255,255,0.9)", borderRadius: 999, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink)" }}>Recomendado</span>
                 )}
@@ -128,11 +129,11 @@ const ContentCarousel = ({ go }) => {
                   <span style={{ position: "absolute", top: 12, right: 12, padding: "3px 9px", background: "var(--health)", color: "#fff", borderRadius: 999, fontSize: 10, fontWeight: 700 }}>✓ Concluído</span>
                 )}
               </div>
-              <div style={{ padding: "14px 16px 16px" }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", lineHeight: 1.3, marginBottom: 6 }}>{t.nome}</div>
+              <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", lineHeight: 1.3, marginBottom: 6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.nome}</div>
                 <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>{t.autor} · {t.duracao}</div>
                 {t.progresso > 0 && t.progresso < 100 && (
-                  <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ marginTop: "auto", paddingTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
                     <div style={{ flex: 1, height: 3, background: "var(--canvas-warm)", borderRadius: 99 }}>
                       <div style={{ width: `${t.progresso}%`, height: "100%", background: "var(--health)", borderRadius: 99 }} />
                     </div>
@@ -193,35 +194,6 @@ const AlunoHome = ({ go }) => (
             Começar agora <Icon name="arrow-right" size={15}/>
           </button>
           <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.7)" }}>Fecha em 4 dias</span>
-        </div>
-      </div>
-    </div>
-
-    {/* Quick cards */}
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 40 }}>
-      <button onClick={() => go("trilha", { trilhaId: 1 })} className="card" style={{ padding: 22, textAlign: "left", display: "flex", flexDirection: "column", gap: 14 }}>
-        <span style={{ width: 36, height: 36, borderRadius: 10, background: "var(--surface-peach)", color: "var(--orange-deep)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-          <Icon name="book" size={18}/>
-        </span>
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)" }}>Continue de onde parou</div>
-          <div style={{ fontSize: 13, color: "var(--ink-muted)", marginTop: 4 }}>Resiliência e regulação emocional · 30%</div>
-        </div>
-        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ flex: 1, height: 4, background: "var(--canvas-warm)", borderRadius: 99 }}>
-            <div style={{ width: "30%", height: "100%", background: "var(--health)", borderRadius: 99 }}/>
-          </div>
-          <Icon name="arrow-right" size={14} color="var(--ink-muted)"/>
-        </div>
-      </button>
-
-      <div className="card" style={{ padding: 22, background: "var(--surface-sage)" }}>
-        <span style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.6)", color: "var(--health-deep)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
-          <Icon name="shield" size={18}/>
-        </span>
-        <div style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)" }}>Sua privacidade</div>
-        <div style={{ fontSize: 13, color: "var(--ink-soft)", marginTop: 6, lineHeight: 1.5 }}>
-          As respostas vão para análises agregadas. Ninguém na Loghaus vê suas respostas individuais.
         </div>
       </div>
     </div>
