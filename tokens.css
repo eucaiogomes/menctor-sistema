@@ -1,0 +1,253 @@
+/* ============================================================
+   LECTOR TECNOLOGIA — Design System Tokens
+   Source: Lector Live platform + logo analysis
+   ============================================================ */
+
+/* ── BRAND COLORS ─────────────────────────────────────────── */
+:root {
+  --color-brand-orange:       #E87722;
+  --color-brand-orange-dark:  #C4611A;
+  --color-brand-orange-light: #FDF0E6;
+  --color-brand-teal:         #1B8CA6;
+  --color-brand-teal-dark:    #126880;
+  --color-brand-teal-light:   #E4F4F8;
+  --color-brand-green:        #5BAD72;
+  --color-brand-green-dark:   #3D8A52;
+  --color-brand-green-light:  #EAF6EE;
+  --color-brand-navy:         #1C4B82;
+  --color-brand-navy-dark:    #122F54;
+  --color-brand-navy-light:   #E4EBF5;
+
+  /* ── NEUTRAL SCALE ──────────────────────────────────────── */
+  --color-neutral-0:    #FFFFFF;
+  --color-neutral-50:   #F9F9F9;
+  --color-neutral-100:  #F5F5F5;
+  --color-neutral-200:  #EBEBEB;
+  --color-neutral-300:  #E0E0E0;
+  --color-neutral-400:  #CCCCCC;
+  --color-neutral-500:  #999999;
+  --color-neutral-600:  #666666;
+  --color-neutral-700:  #444444;
+  --color-neutral-800:  #2A2A2A;
+  --color-neutral-900:  #1A1A1A;
+
+  /* ── SEMANTIC COLORS ────────────────────────────────────── */
+  --color-success:        #4CAF50;
+  --color-success-light:  #EDF7EE;
+  --color-warning:        #F59E0B;
+  --color-warning-light:  #FEF8EC;
+  --color-danger:         #E53935;
+  --color-danger-light:   #FDECEC;
+  --color-info:           #1B8CA6;
+  --color-info-light:     #E4F4F8;
+
+  /* ── SURFACE COLORS ─────────────────────────────────────── */
+  --color-bg:             #FFFFFF;
+  --color-bg-subtle:      #F5F5F5;
+  --color-bg-sidebar:     #F9F9F9;
+  --color-bg-overlay:     rgba(0, 0, 0, 0.48);
+  --color-border:         #E0E0E0;
+  --color-border-subtle:  #EBEBEB;
+  --color-border-focus:   #E87722;
+
+  /* ── TEXT COLORS ────────────────────────────────────────── */
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #444444;
+  --color-text-muted:     #666666;
+  --color-text-placeholder: #999999;
+  --color-text-disabled:  #CCCCCC;
+  --color-text-link:      #E87722;
+  --color-text-link-hover: #C4611A;
+  --color-text-on-dark:   #FFFFFF;
+
+  /* ── PRIMARY INTERACTIVE (Orange) ──────────────────────── */
+  --color-primary:        #E87722;
+  --color-primary-hover:  #C4611A;
+  --color-primary-active: #A34F15;
+  --color-primary-subtle: #FDF0E6;
+  --color-primary-border: #E87722;
+
+  /* ── TYPOGRAPHY ─────────────────────────────────────────── */
+  /* Font families */
+  --font-sans:   'Source Sans 3', 'Source Sans Pro', 'Segoe UI', system-ui, sans-serif;
+  --font-mono:   'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* Font sizes */
+  --text-xs:    11px;
+  --text-sm:    13px;
+  --text-base:  14px;
+  --text-md:    16px;
+  --text-lg:    18px;
+  --text-xl:    22px;
+  --text-2xl:   28px;
+  --text-3xl:   36px;
+  --text-4xl:   48px;
+
+  /* Font weights */
+  --font-regular:   400;
+  --font-medium:    500;
+  --font-semibold:  600;
+  --font-bold:      700;
+
+  /* Line heights */
+  --leading-tight:  1.25;
+  --leading-snug:   1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* Letter spacing */
+  --tracking-tight:  -0.02em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-wider:   0.08em;
+
+  /* ── SEMANTIC TYPE ROLES ────────────────────────────────── */
+  --type-h1-size:    var(--text-3xl);
+  --type-h1-weight:  var(--font-semibold);
+  --type-h1-leading: var(--leading-tight);
+  --type-h1-color:   var(--color-text-primary);
+
+  --type-h2-size:    var(--text-2xl);
+  --type-h2-weight:  var(--font-semibold);
+  --type-h2-leading: var(--leading-tight);
+  --type-h2-color:   var(--color-text-primary);
+
+  --type-h3-size:    var(--text-xl);
+  --type-h3-weight:  var(--font-medium);
+  --type-h3-leading: var(--leading-snug);
+  --type-h3-color:   var(--color-text-primary);
+
+  --type-h4-size:    var(--text-lg);
+  --type-h4-weight:  var(--font-medium);
+  --type-h4-leading: var(--leading-snug);
+  --type-h4-color:   var(--color-text-primary);
+
+  --type-body-size:    var(--text-base);
+  --type-body-weight:  var(--font-regular);
+  --type-body-leading: var(--leading-normal);
+  --type-body-color:   var(--color-text-secondary);
+
+  --type-small-size:    var(--text-sm);
+  --type-small-weight:  var(--font-regular);
+  --type-small-leading: var(--leading-normal);
+  --type-small-color:   var(--color-text-muted);
+
+  --type-label-size:    var(--text-xs);
+  --type-label-weight:  var(--font-medium);
+  --type-label-leading: var(--leading-tight);
+  --type-label-color:   var(--color-text-muted);
+  --type-label-tracking: var(--tracking-wider);
+
+  --type-code-size:    var(--text-sm);
+  --type-code-weight:  var(--font-regular);
+  --type-code-family:  var(--font-mono);
+
+  /* ── SPACING SCALE ──────────────────────────────────────── */
+  --space-0:    0px;
+  --space-1:    2px;
+  --space-2:    4px;
+  --space-3:    6px;
+  --space-4:    8px;
+  --space-5:   10px;
+  --space-6:   12px;
+  --space-7:   14px;
+  --space-8:   16px;
+  --space-10:  20px;
+  --space-12:  24px;
+  --space-16:  32px;
+  --space-20:  40px;
+  --space-24:  48px;
+  --space-32:  64px;
+  --space-40:  80px;
+  --space-48:  96px;
+
+  /* ── BORDER RADII ───────────────────────────────────────── */
+  --radius-none:   0px;
+  --radius-xs:     2px;
+  --radius-sm:     4px;
+  --radius-md:     6px;
+  --radius-lg:     8px;
+  --radius-xl:     12px;
+  --radius-full:   9999px;
+
+  /* ── SHADOWS ────────────────────────────────────────────── */
+  --shadow-none:  none;
+  --shadow-xs:    0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:    0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg:    0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-focus: 0 0 0 3px rgba(232, 119, 34, 0.25);
+
+  /* ── TRANSITIONS ────────────────────────────────────────── */
+  --transition-fast:   80ms ease;
+  --transition-base:  150ms ease;
+  --transition-slow:  250ms ease;
+
+  /* ── Z-INDEX ────────────────────────────────────────────── */
+  --z-base:     0;
+  --z-above:    10;
+  --z-sticky:   100;
+  --z-overlay:  200;
+  --z-modal:    300;
+  --z-toast:    400;
+}
+
+/* ── SEMANTIC ELEMENT DEFAULTS ──────────────────────────────── */
+body {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-size);
+  font-weight: var(--type-body-weight);
+  line-height: var(--type-body-leading);
+  color: var(--type-body-color);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-size: var(--type-h1-size);
+  font-weight: var(--type-h1-weight);
+  line-height: var(--type-h1-leading);
+  color: var(--type-h1-color);
+}
+
+h2 {
+  font-size: var(--type-h2-size);
+  font-weight: var(--type-h2-weight);
+  line-height: var(--type-h2-leading);
+  color: var(--type-h2-color);
+}
+
+h3 {
+  font-size: var(--type-h3-size);
+  font-weight: var(--type-h3-weight);
+  line-height: var(--type-h3-leading);
+  color: var(--type-h3-color);
+}
+
+h4 {
+  font-size: var(--type-h4-size);
+  font-weight: var(--type-h4-weight);
+  line-height: var(--type-h4-leading);
+  color: var(--type-h4-color);
+}
+
+p {
+  font-size: var(--type-body-size);
+  font-weight: var(--type-body-weight);
+  line-height: var(--type-body-leading);
+  color: var(--type-body-color);
+}
+
+a {
+  color: var(--color-text-link);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-text-link-hover);
+  text-decoration: underline;
+}
+
+code, pre {
+  font-family: var(--font-mono);
+  font-size: var(--type-code-size);
+}

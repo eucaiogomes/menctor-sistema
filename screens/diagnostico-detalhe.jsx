@@ -1,0 +1,152 @@
+/* global React, Icon, Page, RiskMedallion, riskLabel, riskPill, COPSOQ_DIMS, CLIENTES, AVALIACOES_ATIVAS */
+
+// ════════════════════════════════════════════════════════════
+// DIAGNOSTICO DETALHE — replaces the pie-chart heavy dashboard
+// Calm, readable, prioritized by risk
+// ════════════════════════════════════════════════════════════
+const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
+  const a = avaliacao || AVALIACOES_ATIVAS[0];
+  const c = cliente || CLIENTES.find(x => x.name.startsWith(a.cliente)) || CLIENTES[0];
+  const dims = COPSOQ_DIMS;
+  const media = a.media || dims.reduce((s,d) => s + d.v, 0) / dims.length;
+
+  return (
+    <Page>
+      {/* Header ──────────────────────────────────── */}
+      <button onClick={() => navigate("diagnosticos")} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--ink-muted)", fontSize: 13, marginBottom: 16 }}>
+        <Icon name="chevron-left" size={14} /> Voltar para diagnósticos
+      </button>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32, gap: 24 }}>
+        <div style={{ flex: 1 }}>
+          <span style={{
+            display: "inline-block", padding: "4px 10px", borderRadius: 999,
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+            background: "var(--surface-sage)", color: "var(--health-deep)", marginBottom: 10
+          }}>{a.code} · {a.cliente}</span>
+          <h1 className="display" style={{ fontSize: 40, margin: 0 }}>{a.titulo}</h1>
+          <p style={{ margin: "8px 0 0", color: "var(--ink-muted)", fontSize: 15 }}>{a.periodo} · {a.respondidos} de {a.alvo} respostas ({a.adesao}% adesão)</p>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn btn-soft" style={{ height: 38 }}><Icon name="download" size={14}/> XLS</button>
+          <button className="btn btn-accent" style={{ height: 38 }}><Icon name="file" size={14}/> Relatório PDF</button>
+        </div>
+      </div>
+
+      {/* OVERVIEW ──────────────────────────────────────────── */}
+      <div className="card" style={{ padding: 32, marginBottom: 24, display: "grid", gridTemplateColumns: "auto 1fr 1fr 1fr", gap: 32, alignItems: "center" }}>
+        <RiskMedallion value={media} size={120} />
+        <div>
+          <div className="eyebrow">Média geral</div>
+          <div style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 30, margin: "6px 0", color: "var(--ink)" }}>
+            {media >= 2.5 ? "Acima do limite" : "Dentro do limite"}
+          </div>
+          <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>Limite NR-1 para ação · 2.5/4</div>
+        </div>
+        <div style={{ borderLeft: "1px solid var(--line)", paddingLeft: 24 }}>
+          <div className="eyebrow">Dimensões em risco</div>
+          <div style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 30, margin: "6px 0", color: "var(--coral)" }}>
+            {dims.filter(d => d.v >= 2.5).length}
+            <span style={{ color: "var(--ink-faint)", fontSize: 20 }}> / {dims.length}</span>
+          </div>
+          <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>Necessitam plano de ação</div>
+        </div>
+        <div style={{ borderLeft: "1px solid var(--line)", paddingLeft: 24 }}>
+          <div className="eyebrow">Comparativo trimestre</div>
+          <div style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 30, margin: "6px 0", color: "var(--health)", display: "flex", alignItems: "center", gap: 6 }}>
+            <Icon name="arrow-down" size={20} color="var(--health)" /> 0.18
+          </div>
+          <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>Melhora vs 4º Trim/2025</div>
+        </div>
+      </div>
+
+      {/* Grid: dims ranking + insights ───────────────────────── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 24, alignItems: "start" }}>
+        {/* Dim ranking — horizontal bars, calmer than pizza chart */}
+        <div className="card" style={{ padding: 28 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+            <h2 className="display" style={{ fontSize: 26, margin: 0 }}>Dimensões COPSOQ II</h2>
+            <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--canvas-warm)", borderRadius: 999 }}>
+              <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--surface)", boxShadow: "var(--shadow-card)" }}>Ranking</button>
+              <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, color: "var(--ink-muted)" }}>Por setor</button>
+              <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, color: "var(--ink-muted)" }}>Por turno</button>
+            </div>
+          </div>
+          <p style={{ margin: "0 0 24px", fontSize: 13, color: "var(--ink-muted)" }}>Ordenadas do maior risco para o menor. Marca vertical = limite de ação NR-1.</p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {dims.map(d => <DimRow key={d.name} dim={d} />)}
+          </div>
+        </div>
+
+        {/* Side col: insights + plano de ação */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* AI insights */}
+          <div className="card" style={{ padding: 22, background: "linear-gradient(180deg, var(--surface-sage) 0%, var(--surface) 100%)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <Icon name="sparkles" size={16} color="var(--health-deep)" />
+              <span className="eyebrow" style={{ color: "var(--health-deep)" }}>Insight</span>
+            </div>
+            <p style={{ margin: 0, fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 20, lineHeight: 1.3, color: "var(--ink)" }}>
+              As três dimensões mais críticas estão concentradas no setor de <em>Operações</em>. Sugerimos um pulse focal em 14 dias.
+            </p>
+            <button className="btn btn-health" style={{ marginTop: 14, height: 34, fontSize: 13 }}>
+              <Icon name="plus" size={14}/> Criar pulse focal
+            </button>
+          </div>
+
+          {/* Plano de ação */}
+          <div className="card" style={{ padding: 22 }}>
+            <h3 style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 20, margin: "0 0 14px" }}>Plano de ação recomendado</h3>
+            <ActionItem index={1} title="Revisão de carga horária — Operações" tag="Carga de trabalho" />
+            <ActionItem index={2} title="Programa anti-burnout para liderança" tag="Burnout" />
+            <ActionItem index={3} title="Workshop de gestão de estresse" tag="Estresse" />
+            <button className="btn btn-soft" style={{ width: "100%", justifyContent: "center", marginTop: 12, height: 34, fontSize: 13 }}>
+              Ver todos · 8 ações <Icon name="arrow-right" size={13} />
+            </button>
+          </div>
+
+          {/* Próxima ação */}
+          <div className="card" style={{ padding: 22, background: "var(--ink)", color: "#FAF8F2" }}>
+            <div className="eyebrow" style={{ color: "rgba(250,248,242,0.6)" }}>Próximo passo</div>
+            <h3 style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 22, margin: "8px 0 12px", color: "#FAF8F2" }}>
+              Apresentar ao RH da {a.cliente}
+            </h3>
+            <button className="btn" style={{ background: "var(--canvas)", color: "var(--ink)", height: 36 }}>
+              Agendar reunião <Icon name="arrow-right" size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </Page>
+  );
+};
+
+// ── helpers ──────────────────────────────────────────────────
+const DimRow = ({ dim }) => {
+  const color = dim.v >= 2.5 ? "var(--coral)" : dim.v >= 1.5 ? "var(--amber)" : "var(--health)";
+  const pct = (dim.v / 4) * 100;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "220px 1fr 50px", gap: 14, alignItems: "center" }}>
+      <div style={{ fontSize: 14, color: "var(--ink-soft)" }}>{dim.name}</div>
+      <div style={{ position: "relative", height: 22, background: "var(--canvas-warm)", borderRadius: 6 }}>
+        <div style={{ position: "absolute", inset: 0, width: `${pct}%`, background: color, borderRadius: 6, opacity: 0.85 }} />
+        {/* limit marker at 2.5/4 */}
+        <div style={{ position: "absolute", left: "62.5%", top: -3, bottom: -3, width: 2, background: "var(--ink)", borderRadius: 99 }} />
+      </div>
+      <div style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 18, textAlign: "right", color: "var(--ink)" }}>{dim.v.toFixed(2)}</div>
+    </div>
+  );
+};
+
+const ActionItem = ({ index, title, tag }) => (
+  <div style={{ display: "flex", gap: 12, padding: "10px 0", borderTop: index > 1 ? "1px dashed var(--line-strong)" : "none" }}>
+    <span style={{ width: 22, height: 22, flexShrink: 0, borderRadius: 999, background: "var(--surface-sage)", color: "var(--health-deep)", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{index}</span>
+    <div>
+      <div style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)" }}>{title}</div>
+      <div style={{ fontSize: 11.5, color: "var(--ink-muted)", marginTop: 2 }}>{tag}</div>
+    </div>
+  </div>
+);
+
+Object.assign(window, { DiagnosticoDetalheScreen });
