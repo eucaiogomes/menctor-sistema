@@ -152,8 +152,18 @@ const StatCard = ({ label, value, delta, tint, icon }) => {
 const ClientRow = ({ cliente, onClick }) => {
   const color = cliente.risk >= 2.5 ? "var(--coral)" : cliente.risk >= 1.5 ? "var(--amber)" : "var(--health)";
   const pct = (cliente.risk / 4) * 100;
+  const [hovered, setHovered] = React.useState(false);
   return (
-    <button onClick={onClick} style={{ display: "block", width: "100%", textAlign: "left" }}>
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "block", width: "100%", textAlign: "left",
+        padding: "10px 12px", borderRadius: 12, margin: "0 -12px",
+        background: hovered ? "var(--surface-2)" : "transparent",
+        transition: "background 0.15s"
+      }}>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(160px, 200px) minmax(0,1fr) 70px auto", gap: 18, alignItems: "center" }}>
         <div>
           <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)" }}>{cliente.name}</div>
@@ -191,17 +201,28 @@ const PipelineStage = ({ label, count, pct, color }) => (
   </div>
 );
 
-const QuickAction = ({ icon, label, onClick }) => (
-  <button onClick={onClick} style={{
-    display: "flex", alignItems: "center", gap: 10,
-    padding: "10px 14px", borderRadius: 10,
-    background: "rgba(255,255,255,0.6)", color: "var(--health-deep)",
-    fontSize: 14, fontWeight: 500, textAlign: "left", width: "100%"
-  }}>
-    <Icon name={icon} size={15} strokeWidth={1.8} />
-    <span>{label}</span>
-    <Icon name="arrow-right" size={13} style={{ marginLeft: "auto", opacity: 0.6 }} />
-  </button>
-);
+const QuickAction = ({ icon, label, onClick }) => {
+  const [hovered, setHovered] = React.useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "10px 14px", borderRadius: 10,
+        background: hovered ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.6)",
+        color: "var(--health-deep)",
+        fontSize: 14, fontWeight: 500, textAlign: "left", width: "100%",
+        boxShadow: hovered ? "0 1px 4px rgba(47,125,111,0.10)" : "none",
+        transform: hovered ? "translateX(2px)" : "none",
+        transition: "background 0.15s, box-shadow 0.15s, transform 0.15s"
+      }}>
+      <Icon name={icon} size={15} strokeWidth={1.8} />
+      <span>{label}</span>
+      <Icon name="arrow-right" size={13} style={{ marginLeft: "auto", opacity: hovered ? 1 : 0.6, transition: "opacity 0.15s" }} />
+    </button>
+  );
+};
 
 Object.assign(window, { HomeScreen });
