@@ -1,7 +1,7 @@
 /* global React, Icon */
 
 // ════════════════════════════════════════════════════════════
-// NOVO CLIENTE — Full-page wizard, mirrors CreateFullPage pattern
+// NOVO CLIENTE — Two-column: form left · email preview right
 // ════════════════════════════════════════════════════════════
 
 const SETORES_OPTIONS = [
@@ -38,7 +38,6 @@ const NovoClienteFullPage = ({ onClose }) => {
 
   const upd = (k, v) => setData({ ...data, [k]: v });
 
-  // Auto-derive a subdomain from fantasia/razao
   React.useEffect(() => {
     if (!data.subdominio && (data.fantasia || data.razao)) {
       const base = (data.fantasia || data.razao).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20);
@@ -48,10 +47,18 @@ const NovoClienteFullPage = ({ onClose }) => {
 
   if (done) return <SuccessScreen data={data} onClose={onClose} />;
 
+  const planoAtivo = PLANOS.find(p => p.id === data.plano);
+  const nomeEmpresa = data.fantasia || data.razao || "sua empresa";
+  const nomeContato = data.contatoNome ? data.contatoNome.split(" ")[0] : "gestor(a)";
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--canvas)", display: "flex", flexDirection: "column" }}>
-      {/* header */}
-      <div style={{ padding: "22px 36px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--canvas)", position: "sticky", top: 0, zIndex: 10 }}>
+      {/* ── Header ── */}
+      <div style={{
+        padding: "18px 36px", borderBottom: "1px solid var(--line)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        background: "var(--canvas)", position: "sticky", top: 0, zIndex: 20
+      }}>
         <button onClick={onClose} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--ink-muted)", fontSize: 13.5 }}>
           <Icon name="chevron-left" size={15}/> Voltar para clientes
         </button>
@@ -81,17 +88,19 @@ const NovoClienteFullPage = ({ onClose }) => {
         </button>
       </div>
 
-      {/* body */}
-      <div style={{ flex: 1, padding: "48px 36px 140px", display: "flex", justifyContent: "center" }}>
-        <div style={{ width: "100%", maxWidth: 720 }}>
+      {/* ── Two-column body ── */}
+      <div style={{ flex: 1, display: "flex", minHeight: 0, overflow: "hidden" }}>
+
+        {/* LEFT — form */}
+        <div style={{ flex: "0 0 52%", overflowY: "auto", padding: "44px 48px 140px" }}>
           <div style={{ marginBottom: 32 }}>
             <div className="eyebrow" style={{ marginBottom: 10 }}>Etapa {step} de 3</div>
-            <h1 className="display" style={{ fontSize: 44, margin: 0, lineHeight: 1.05 }}>
+            <h1 className="display" style={{ fontSize: 40, margin: 0, lineHeight: 1.05 }}>
               {step === 1 && <>Vamos cadastrar um <em style={{ color: "var(--health-deep)" }}>novo cliente</em>.</>}
               {step === 2 && "Quem vai gerenciar este portal?"}
               {step === 3 && "Defina o plano e o endereço do portal."}
             </h1>
-            <p style={{ margin: "12px 0 0", fontSize: 15, color: "var(--ink-muted)", maxWidth: 600, lineHeight: 1.55 }}>
+            <p style={{ margin: "12px 0 0", fontSize: 15, color: "var(--ink-muted)", maxWidth: 520, lineHeight: 1.55 }}>
               {step === 1 && "Comece com os dados da empresa. Você pode editar tudo depois."}
               {step === 2 && "Esta pessoa será o admin RH — recebe acesso para aplicar diagnósticos e gerenciar colaboradores."}
               {step === 3 && "O subdomínio é o endereço que os colaboradores vão usar para responder os diagnósticos."}
@@ -100,22 +109,162 @@ const NovoClienteFullPage = ({ onClose }) => {
 
           {step === 1 && <StepEmpresa data={data} upd={upd} />}
           {step === 2 && <StepContato data={data} upd={upd} />}
-          {step === 3 && <StepPlano data={data} upd={upd} />}
+          {step === 3 && <StepPlano   data={data} upd={upd} />}
+        </div>
+
+        {/* DIVIDER */}
+        <div style={{ width: 1, background: "var(--line)", flexShrink: 0 }} />
+
+        {/* RIGHT — email preview */}
+        <div style={{
+          flex: 1, overflowY: "auto",
+          background: "var(--canvas-warm)",
+          padding: "44px 40px 80px",
+          display: "flex", flexDirection: "column", gap: 20
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <div className="eyebrow" style={{ marginBottom: 4 }}>Prévia do e-mail</div>
+              <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>Atualiza em tempo real conforme você preenche</div>
+            </div>
+            <span style={{
+              fontSize: 11, padding: "4px 10px", borderRadius: 999,
+              background: "var(--surface-sage)", color: "var(--health-deep)", fontWeight: 600
+            }}>AO VIVO</span>
+          </div>
+
+          {/* Email card */}
+          <div style={{
+            background: "#ffffff",
+            borderRadius: 16,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)",
+            overflow: "hidden",
+            fontFamily: "'Georgia', serif",
+          }}>
+            {/* Email top bar */}
+            <div style={{ background: "#f5f5f5", padding: "10px 18px", borderBottom: "1px solid #e8e8e8", display: "flex", gap: 16, fontSize: 12, color: "#666" }}>
+              <span><strong style={{ color: "#333" }}>De:</strong> Caio Guedes · Menctor &lt;caio@menctor.com.br&gt;</span>
+              <span><strong style={{ color: "#333" }}>Para:</strong> {data.contatoEmail || "contato@empresa.com.br"}</span>
+            </div>
+            <div style={{ background: "#f5f5f5", padding: "6px 18px 12px", borderBottom: "1px solid #e8e8e8", fontSize: 13, color: "#333" }}>
+              <strong>Assunto:</strong> Proposta Menctor para {nomeEmpresa} — conformidade NR-1 sem complicação
+            </div>
+
+            {/* Email body */}
+            <div style={{ padding: "36px 40px", lineHeight: 1.75, fontSize: 15, color: "#222" }}>
+              {/* Logo */}
+              <div style={{ marginBottom: 28, display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 999, background: "linear-gradient(135deg,#2F7D6F,#5BAD72)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 18 }}>m</div>
+                <span style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 18, color: "#1a1a1a", letterSpacing: "-0.01em" }}>menctor</span>
+              </div>
+
+              <p style={{ margin: "0 0 18px" }}>
+                Olá, <strong>{nomeContato}</strong>! 👋
+              </p>
+              <p style={{ margin: "0 0 18px" }}>
+                Obrigado pelo interesse em levar a <strong>{nomeEmpresa}</strong> para o próximo nível de conformidade com a <strong>NR-1</strong>. Preparei esta proposta especialmente para vocês.
+              </p>
+
+              {/* Divider */}
+              <div style={{ borderTop: "1px solid #e8e8e8", margin: "24px 0" }} />
+
+              {/* Plan highlight */}
+              <div style={{ background: "linear-gradient(135deg, #f0faf6, #e8f8ee)", border: "1px solid #b3e6c8", borderRadius: 12, padding: "20px 24px", marginBottom: 24 }}>
+                <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#2F7D6F", marginBottom: 6 }}>Plano recomendado</div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 22, fontWeight: 700, color: "#1a1a1a", letterSpacing: "-0.02em", marginBottom: 2 }}>
+                  {planoAtivo?.nome || "Crescimento"}
+                </div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#555", marginBottom: 14 }}>{planoAtivo?.desc || "Até 500 colaboradores"}</div>
+                <div style={{ fontFamily: "sans-serif", display: "flex", alignItems: "baseline", gap: 4 }}>
+                  <span style={{ fontSize: 30, fontWeight: 700, color: "#2F7D6F" }}>R$ {(data.mrr || 4200).toLocaleString("pt-BR")}</span>
+                  <span style={{ fontSize: 13, color: "#888" }}>/mês</span>
+                </div>
+              </div>
+
+              {/* What's included */}
+              <p style={{ margin: "0 0 10px", fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#333", textTransform: "uppercase", letterSpacing: "0.06em" }}>O que está incluído</p>
+              {[
+                "Diagnóstico psicossocial baseado na NR-1",
+                "Portal exclusivo para colaboradores",
+                "Relatórios em PDF prontos para auditoria",
+                "Suporte dedicado de consultores Menctor",
+                data.colab ? `Até ${data.colab} colaboradores cobertos` : "Colaboradores ilimitados no plano",
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8, fontFamily: "sans-serif", fontSize: 14 }}>
+                  <span style={{ color: "#2F7D6F", marginTop: 1, fontSize: 16 }}>✓</span>
+                  <span style={{ color: "#333" }}>{item}</span>
+                </div>
+              ))}
+
+              <div style={{ borderTop: "1px solid #e8e8e8", margin: "24px 0" }} />
+
+              {/* Portal URL if set */}
+              {data.subdominio && (
+                <div style={{ background: "#f9f9f9", border: "1px solid #e8e8e8", borderRadius: 10, padding: "14px 18px", marginBottom: 20, fontFamily: "sans-serif" }}>
+                  <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Seu portal exclusivo</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#2F7D6F" }}>
+                    🔗 {data.subdominio}.menctor.com.br
+                  </div>
+                </div>
+              )}
+
+              <p style={{ margin: "0 0 18px" }}>
+                Para dar início, basta <strong>aceitar a proposta</strong> abaixo. Em até 24 horas seu portal estará configurado e pronto para uso.
+              </p>
+
+              {/* CTA button */}
+              <div style={{ textAlign: "center", margin: "28px 0" }}>
+                <div style={{
+                  display: "inline-block",
+                  background: "linear-gradient(135deg, #2F7D6F, #5BAD72)",
+                  color: "#fff", fontFamily: "sans-serif",
+                  padding: "14px 36px", borderRadius: 50,
+                  fontWeight: 700, fontSize: 15, letterSpacing: "0.02em",
+                  boxShadow: "0 4px 16px rgba(47,125,111,0.35)"
+                }}>
+                  ✅ Aceitar proposta
+                </div>
+              </div>
+
+              <div style={{ borderTop: "1px solid #e8e8e8", margin: "24px 0" }} />
+
+              <p style={{ margin: "0 0 4px", fontFamily: "sans-serif", fontSize: 13, color: "#555" }}>
+                Qualquer dúvida, é só responder este e-mail. Estou à disposição.
+              </p>
+              <p style={{ margin: 0, fontFamily: "sans-serif", fontSize: 13, color: "#555" }}>
+                Abraços,<br />
+                <strong style={{ color: "#222" }}>Caio Guedes</strong><br />
+                Consultor · Menctor by Lector
+              </p>
+
+              {/* Footer */}
+              <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid #e8e8e8", fontFamily: "sans-serif", fontSize: 11, color: "#aaa", textAlign: "center" }}>
+                Menctor by Lector · contato@menctor.com.br<br />
+                Você está recebendo este e-mail porque {nomeEmpresa} demonstrou interesse em conformidade NR-1.
+              </div>
+            </div>
+          </div>
+
+          {/* Hint */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ink-muted)", padding: "0 4px" }}>
+            <Icon name="sparkles" size={13} color="var(--health-deep)" />
+            O e-mail real será enviado assim que você clicar em <strong style={{ color: "var(--ink-soft)" }}>Criar cliente</strong>.
+          </div>
         </div>
       </div>
 
-      {/* footer */}
+      {/* ── Footer ── */}
       <div style={{
-        position: "sticky", bottom: 0, padding: "16px 36px",
-        borderTop: "1px solid var(--line)", background: "rgba(244,241,232,0.92)",
+        position: "sticky", bottom: 0, padding: "16px 48px",
+        borderTop: "1px solid var(--line)", background: "rgba(244,241,232,0.94)",
         backdropFilter: "blur(10px)",
-        display: "flex", justifyContent: "space-between", alignItems: "center"
+        display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 20
       }}>
         <button onClick={step > 1 ? () => setStep(step - 1) : onClose} className="btn btn-ghost" style={{ height: 40 }}>
           <Icon name="chevron-left" size={14}/> {step > 1 ? "Voltar" : "Cancelar"}
         </button>
         <div style={{ fontSize: 12.5, color: "var(--ink-muted)" }}>
-          {step === 1 && (data.razao ? <>Cadastrando <strong style={{ color: "var(--ink)" }}>{data.fantasia || data.razao}</strong></> : <>CNPJ é validado na Receita Federal</>)}
+          {step === 1 && (data.razao ? <><strong style={{ color: "var(--ink)" }}>{data.fantasia || data.razao}</strong> · preenchendo dados</> : <>CNPJ é validado na Receita Federal</>)}
           {step === 2 && (data.contatoNome ? <>Admin: <strong style={{ color: "var(--ink)" }}>{data.contatoNome}</strong></> : <>Recebe um e-mail de convite ao final</>)}
           {step === 3 && <>Plano <strong style={{ color: "var(--ink)" }}>{PLANOS.find(p => p.id === data.plano)?.nome}</strong> · R$ {data.mrr.toLocaleString("pt-BR")}/mês</>}
         </div>
@@ -163,7 +312,6 @@ const StepEmpresa = ({ data, upd }) => (
       <Input value={data.site} onChange={v => upd("site", v)} placeholder="https://loghaus.com.br" />
     </Field>
 
-    {/* Tip card */}
     <div style={{ marginTop: 10, padding: 16, borderRadius: 12, background: "var(--surface-sage)", display: "flex", gap: 12, alignItems: "flex-start" }}>
       <Icon name="sparkles" size={16} color="var(--health-deep)" />
       <div>
@@ -196,7 +344,6 @@ const StepContato = ({ data, upd }) => (
       <Input value={data.contatoFone} onChange={v => upd("contatoFone", v)} placeholder="(11) 99999-9999" />
     </Field>
 
-    {/* Invite card */}
     <label style={{ marginTop: 8, padding: 18, borderRadius: 14, background: "var(--surface)", border: "1px solid var(--line)", display: "flex", gap: 14, alignItems: "flex-start", cursor: "pointer" }}>
       <input type="checkbox" checked={data.convidar} onChange={e => upd("convidar", e.target.checked)} style={{ accentColor: "var(--health)", width: 18, height: 18, marginTop: 2 }} />
       <div style={{ flex: 1 }}>
@@ -325,7 +472,7 @@ const SuccessScreen = ({ data, onClose }) => {
   );
 };
 
-const SummaryRow = ({ label, value, last }) => (
+const SummaryRow = ({ label, value }) => (
   <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderTop: "1px dashed var(--line-strong)" }}>
     <span style={{ fontSize: 12.5, color: "var(--ink-muted)" }}>{label}</span>
     <span style={{ fontSize: 13.5, color: "var(--ink)", fontWeight: 500, textAlign: "right" }}>{value}</span>
