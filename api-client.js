@@ -3,9 +3,24 @@
  * Cliente JavaScript para gerar relatórios psicossociais via API
  */
 
+// Detectar URL da API baseado no environment
+const getAPIURL = () => {
+  // Tentar usar variável de ambiente primeiro
+  if (typeof process !== 'undefined' && process.env && process.env.VITE_RELATORIO_API_URL) {
+    return process.env.VITE_RELATORIO_API_URL;
+  }
+  // Tentar localStorage (para configuração dinâmica)
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const saved = window.localStorage.getItem('RELATORIO_API_URL');
+    if (saved) return saved;
+  }
+  // Padrão local para desenvolvimento
+  return "http://localhost:5000";
+};
+
 class RelatorioAPI {
-  constructor(baseURL = "http://localhost:5000") {
-    this.baseURL = baseURL;
+  constructor(baseURL = null) {
+    this.baseURL = baseURL || getAPIURL();
   }
 
   /**
@@ -121,6 +136,17 @@ class RelatorioAPI {
         score: d.v,
       })),
     };
+  }
+
+  /**
+   * Define a URL da API (útil para mudanças em runtime)
+   * @param {String} url - Nova URL da API
+   */
+  setBaseURL(url) {
+    this.baseURL = url;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('RELATORIO_API_URL', url);
+    }
   }
 }
 
