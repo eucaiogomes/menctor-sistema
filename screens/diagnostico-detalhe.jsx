@@ -26,10 +26,76 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
   const [exportMsg, setExportMsg] = React.useState("");
   const [showAllActions, setShowAllActions] = React.useState(false);
   const [reuniaoToast, setReuniaoToast] = React.useState(false);
+  const [gerandoPDF, setGerandoPDF] = React.useState(false);
   const a = avaliacao || AVALIACOES_ATIVAS[0];
   const c = cliente || CLIENTES.find(x => x.name.startsWith(a.cliente)) || CLIENTES[0];
   const dims = COPSOQ_DIMS;
   const media = a.media || dims.reduce((s,d) => s + d.v, 0) / dims.length;
+
+  const gerarRelatorioPDF = async () => {
+    setGerandoPDF(true);
+    try {
+      // Preparar dados para enviar ao servidor
+      const dados = {
+        codigo: a.code,
+        titulo_linha1: "Pesquisa de Clima Organizacional —",
+        titulo_linha2: a.periodo.split("—")[0].trim(),
+        descricao: "Pesquisa trimestral combinando dimensões COPSOQ II com indicadores de clima e engajamento.",
+        periodo: a.periodo,
+        aplicacao: a.periodo, // Usar o mesmo período como aplicação
+        responsavel: "Comite de Pessoas & Cultura",
+        respondentes: a.respondidos,
+        total_colaboradores: a.alvo,
+        taxa_adesao: `${a.adesao}%`,
+        foco: "Toda a organização",
+        emissao: new Date().toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "2-digit" }),
+        empresa: a.cliente,
+        cnpj: c.cnpj || "XX.XXX.XXX/0001-XX",
+        endereco: c.endereco || "—",
+        data_avaliacao: new Date().toLocaleDateString("pt-BR"),
+        rt_nome: "Caio Guedes",
+        rt_registro: "CRP-06/12345",
+        rt_especialidade: "Psicologia Organizacional",
+        rt_contato: "(11) 99999-9999",
+        output_filename: `relatorio_${a.code}_${new Date().getTime()}.pdf`,
+        dimensoes: dims.map(d => ({ nome: d.name, score: d.v }))
+      };
+
+      // Enviar para o servidor
+      const response = await fetch("http://localhost:5000/api/gerar-relatorio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dados)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao gerar relatório");
+      }
+
+      // Download do PDF
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = dados.output_filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      setExportMsg("Relatório PDF baixado com sucesso!");
+      setTimeout(() => setExportMsg(""), 3000);
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+      setExportMsg(`Erro ao gerar relatório: ${err.message}`);
+      setTimeout(() => setExportMsg(""), 3000);
+    } finally {
+      setGerandoPDF(false);
+    }
+  };
 
   return (
     <Page>
@@ -51,11 +117,26 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
           <div style={{ display: "flex", gap: 8 }}>
           <button onClick={() => setExportMsg("Planilha XLS preparada para download.")} className="btn btn-soft" style={{ height: 38 }}><Icon name="download" size={14}/> XLS</button>
-          <button onClick={() => setExportMsg("Relatório PDF preparado para download.")} className="btn btn-accent" style={{ height: 38 }}><Icon name="file" size={14}/> Relatório PDF</button>
+          <button 
+            onClick={gerarRelatorioPDF}
+            disabled={gerandoPDF}
+            className="btn btn-accent" 
+            style={{ height: 38 }}
+          >
+            {gerandoPDF ? (
+              <>
+                <Icon name="loader" size={14} style={{ animation: "spin 1s linear infinite" }} /> Gerando...
+              </>
+            ) : (
+              <>
+                <Icon name="file" size={14}/> Relatório PDF
+              </>
+            )}
+          </button>
           </div>
           {exportMsg && (
             <div style={{ padding: "7px 10px", borderRadius: 999, background: "var(--surface-sage)", color: "var(--health-deep)", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
-              <Icon name="check" size={13}/> {exportMsg}
+              <Icon name={exportMsg.includes("Erro") ? "alert-circle" : "check"} size={13}/> {exportMsg}
             </div>
           )}
         </div>
