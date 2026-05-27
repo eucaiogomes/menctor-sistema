@@ -33,7 +33,7 @@ const ClientesScreen = ({ navigate, initialTab }) => {
       </div>
 
       {tab === "carteira" && <CarteiraView navigate={navigate} />}
-      {tab === "pipeline" && <PipelineView />}
+      {tab === "pipeline" && <PipelineView navigate={navigate} />}
     </Page>
   );
 };
@@ -126,9 +126,22 @@ const STAGES = [
   { id: "fechado",  label: "Fechado",        color: "var(--ink)",       desc: "Cliente ativo" },
 ];
 
-const PipelineView = () => {
+const PipelineView = ({ navigate }) => {
+  const [addingStage, setAddingStage] = React.useState(null);
+  const [draft, setDraft] = React.useState({ empresa: "", contato: "" });
+  const [savedStage, setSavedStage] = React.useState(null);
   const totalProposta = LEADS_PIPELINE.proposta.reduce((s,p)=>s+p.valor,0)
                       + LEADS_PIPELINE.aceita.reduce((s,p)=>s+p.valor,0);
+  const startAdding = (stageId) => {
+    setAddingStage(stageId);
+    setSavedStage(null);
+    setDraft({ empresa: "", contato: "" });
+  };
+  const saveDraft = () => {
+    setSavedStage(addingStage);
+    setAddingStage(null);
+    setDraft({ empresa: "", contato: "" });
+  };
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, padding: "0 4px" }}>
@@ -152,15 +165,32 @@ const PipelineView = () => {
             <div style={{ fontSize: 11, color: "var(--ink-faint)", marginBottom: 14 }}>{s.desc}</div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {LEADS_PIPELINE[s.id].map(card => <DealCard key={card.id} card={card} stage={s} />)}
+              {LEADS_PIPELINE[s.id].map(card => <DealCard key={card.id} card={card} stage={s} navigate={navigate} />)}
               {LEADS_PIPELINE[s.id].length === 0 && (
                 <div style={{ padding: "24px 12px", border: "1px dashed var(--line-strong)", borderRadius: 10, textAlign: "center", fontSize: 12.5, color: "var(--ink-faint)" }}>
                   Sem negócios nesta etapa.
                 </div>
               )}
-              <button style={{ padding: "10px 12px", borderRadius: 10, background: "transparent", color: "var(--ink-muted)", fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 6, width: "100%", justifyContent: "center" }}>
-                <Icon name="plus" size={13} /> Adicionar
-              </button>
+              {savedStage === s.id && (
+                <div style={{ padding: "9px 10px", borderRadius: 10, background: "var(--surface-sage)", color: "var(--health-deep)", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Icon name="check" size={13}/> Rascunho criado para revisÃ£o.
+                </div>
+              )}
+              {addingStage === s.id ? (
+                <div style={{ padding: 12, borderRadius: 10, background: "var(--surface)", border: "1px solid var(--line)", boxShadow: "var(--shadow-card)" }}>
+                  <div className="eyebrow" style={{ marginBottom: 10 }}>Novo negócio</div>
+                  <input value={draft.empresa} onChange={e => setDraft({ ...draft, empresa: e.target.value })} placeholder="Empresa" style={{ width: "100%", height: 34, padding: "0 10px", border: "1px solid var(--line)", borderRadius: 8, fontSize: 13, marginBottom: 8, background: "var(--canvas)" }} />
+                  <input value={draft.contato} onChange={e => setDraft({ ...draft, contato: e.target.value })} placeholder="Contato principal" style={{ width: "100%", height: 34, padding: "0 10px", border: "1px solid var(--line)", borderRadius: 8, fontSize: 13, background: "var(--canvas)" }} />
+                  <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                    <button onClick={saveDraft} className="btn btn-primary" style={{ height: 30, fontSize: 12, flex: 1, justifyContent: "center" }}>Salvar</button>
+                    <button onClick={() => setAddingStage(null)} className="btn btn-soft" style={{ height: 30, fontSize: 12, flex: 1, justifyContent: "center" }}>Cancelar</button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => startAdding(s.id)} style={{ padding: "10px 12px", borderRadius: 10, background: "transparent", color: "var(--ink-muted)", fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 6, width: "100%", justifyContent: "center" }}>
+                  <Icon name="plus" size={13} /> Adicionar
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -169,7 +199,7 @@ const PipelineView = () => {
   );
 };
 
-const DealCard = ({ card, stage }) => (
+const DealCard = ({ card, stage, navigate }) => (
   <div style={{ background: "var(--surface)", borderRadius: 10, padding: 12, boxShadow: "var(--shadow-card)", cursor: "grab" }}>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 6, marginBottom: 6 }}>
       <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink)", lineHeight: 1.3 }}>{card.empresa}</div>
@@ -188,7 +218,7 @@ const DealCard = ({ card, stage }) => (
     </div>
     <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px dashed var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11.5, color: "var(--ink-muted)" }}>
       <span>Há {card.dias}d</span>
-      {stage.id === "proposta" && <button style={{ fontSize: 11, color: "var(--health-deep)", display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name="link" size={11}/> Portal</button>}
+      {stage.id === "proposta" && <button onClick={() => navigate("portal")} style={{ fontSize: 11, color: "var(--health-deep)", display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name="link" size={11}/> Portal</button>}
       {stage.id === "fechado"  && <span className="pill" style={{ fontSize: 10, padding: "2px 8px" }}>Cliente ativo</span>}
     </div>
   </div>

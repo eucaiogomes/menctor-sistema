@@ -7,6 +7,7 @@
 const ADMIN_NAV = [
   { id: "admin-home",         icon: "home",     label: "Visão geral" },
   { id: "admin-diagnosticos", icon: "pulse",    label: "Diagnósticos" },
+  { id: "admin-relatorios",   icon: "file",     label: "Relatórios Finais" },
   { id: "admin-colaboradores",icon: "users",    label: "Colaboradores" },
   { id: "admin-vitrine",      icon: "globe",    label: "Vitrine" },
   { id: "admin-aprendizado",  icon: "book",     label: "Aprendizado" },
@@ -562,4 +563,256 @@ const Toggle = ({ label, on, onClick }) => (
   </button>
 );
 
-Object.assign(window, { AdminSidebar, AdminHome, AdminColaboradores, AdminVitrine });
+// ════════════════════════════════════════════════════════════
+// RELATÓRIOS FINAIS
+// ════════════════════════════════════════════════════════════
+
+const DIMS_RELATORIO = [
+  { name: "Carga de trabalho",         v: 3.12 },
+  { name: "Burnout",                   v: 2.95 },
+  { name: "Estresse",                  v: 2.88 },
+  { name: "Conflito trabalho-família", v: 2.74 },
+  { name: "Ritmo de trabalho",         v: 2.68 },
+  { name: "Reconhecimento",            v: 2.51 },
+  { name: "Suporte social",            v: 2.42 },
+  { name: "Qualidade da liderança",    v: 2.38 },
+  { name: "Justiça e respeito",        v: 2.20 },
+  { name: "Influência no trabalho",    v: 2.15 },
+  { name: "Comunidade social",         v: 1.88 },
+  { name: "Significado do trabalho",   v: 1.72 },
+];
+
+const RelatorioPsicossocial = ({ avaliacao, dims }) => (
+  <div style={{ fontFamily: "Arial, sans-serif", lineHeight: 1.6, color: "#333", padding: 40 }}>
+    <div style={{ textAlign: "center", borderBottom: "3px solid #2F7D6F", paddingBottom: 40, marginBottom: 40 }}>
+      <h1 style={{ fontSize: 32, fontWeight: 700, color: "#2F7D6F", margin: "0 0 10px" }}>Relatório de Risco Psicossocial</h1>
+      <p style={{ fontSize: 14, color: "#666", margin: 0 }}>Avaliação COPSOQ II · Norma NR-1</p>
+    </div>
+    <div style={{ marginBottom: 40 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: "#2F7D6F", borderBottom: "1px solid #ddd", paddingBottom: 10, marginBottom: 20 }}>1. Informações da Avaliação</h2>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <tbody>
+          {[["Título", avaliacao.titulo], ["Período", avaliacao.periodo], ["Respondentes", `${avaliacao.respondidos} de ${avaliacao.alvo} (${avaliacao.adesao}% adesão)`], ["Código", avaliacao.code]].map(([k, v]) => (
+            <tr key={k} style={{ borderBottom: "1px solid #eee" }}>
+              <td style={{ padding: 8, fontWeight: 600, width: "30%" }}>{k}:</td>
+              <td style={{ padding: 8 }}>{v}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div style={{ marginBottom: 40 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: "#2F7D6F", borderBottom: "1px solid #ddd", paddingBottom: 10, marginBottom: 20 }}>2. Resultado Geral</h2>
+      <div style={{ display: "flex", gap: 40 }}>
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#666", textTransform: "uppercase", marginBottom: 5 }}>Média Geral</p>
+          <p style={{ fontSize: 28, fontWeight: 700, color: avaliacao.media >= 2.5 ? "#C75A4C" : "#2F7D6F", margin: 0 }}>{avaliacao.media.toFixed(2)}/4.0</p>
+        </div>
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#666", textTransform: "uppercase", marginBottom: 5 }}>Status NR-1</p>
+          <p style={{ fontSize: 16, fontWeight: 700, color: avaliacao.media >= 2.5 ? "#C75A4C" : "#2F7D6F", margin: 0 }}>{avaliacao.media >= 2.5 ? "⚠ ACIMA DO LIMITE" : "✓ Dentro do Limite"}</p>
+        </div>
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#666", textTransform: "uppercase", marginBottom: 5 }}>Dimensões em Risco</p>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "#C75A4C", margin: 0 }}>{dims.filter(d => d.v >= 2.5).length} de {dims.length}</p>
+        </div>
+      </div>
+    </div>
+    <div style={{ marginBottom: 40 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: "#2F7D6F", borderBottom: "1px solid #ddd", paddingBottom: 10, marginBottom: 20 }}>3. Dimensões Críticas (≥ 2.5)</h2>
+      {dims.filter(d => d.v >= 2.5).map((dim, idx) => (
+        <div key={dim.name} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: idx < dims.filter(d => d.v >= 2.5).length - 1 ? "1px solid #eee" : "none" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+            <span style={{ fontWeight: 600 }}>{dim.name}</span>
+            <span style={{ fontWeight: 700, color: "#C75A4C" }}>{dim.v.toFixed(2)}</span>
+          </div>
+          <div style={{ height: 8, background: "#eee", borderRadius: 4, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${(dim.v / 4) * 100}%`, background: "#C75A4C" }} />
+          </div>
+        </div>
+      ))}
+    </div>
+    <div style={{ marginBottom: 40 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: "#2F7D6F", borderBottom: "1px solid #ddd", paddingBottom: 10, marginBottom: 16 }}>4. Recomendações</h2>
+      <ol style={{ paddingLeft: 20 }}>
+        {["Implementar plano de ação imediato para as dimensões acima do limite de 2.5/4.0.",
+          "Realizar pulses mensais para monitorar evolução das dimensões críticas.",
+          "Workshops de capacitação para gestores em saúde psicossocial.",
+          "Compartilhar resultados com equipes de forma transparente e participativa.",
+          "Documentar todas as ações tomadas para demonstrar conformidade com a NR-1."
+        ].map((txt, i) => <li key={i} style={{ marginBottom: 8, fontSize: 14 }}>{txt}</li>)}
+      </ol>
+    </div>
+    <div style={{ marginTop: 60, paddingTop: 20, borderTop: "2px solid #eee", fontSize: 11, color: "#999", textAlign: "center" }}>
+      <p>Relatório gerado pelo Menctor · Consultor: Caio Guedes · 27 de maio de 2026</p>
+    </div>
+  </div>
+);
+
+const MatrizNR1 = ({ avaliacao, dims }) => (
+  <div style={{ fontFamily: "Arial, sans-serif", lineHeight: 1.6, color: "#333", padding: 40 }}>
+    <div style={{ textAlign: "center", borderBottom: "3px solid #1C4B82", paddingBottom: 40, marginBottom: 40 }}>
+      <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1C4B82", margin: "0 0 10px" }}>Matriz de Risco NR-1</h1>
+      <p style={{ fontSize: 14, color: "#666", margin: 0 }}>Mapeamento por Severidade · {avaliacao.titulo}</p>
+    </div>
+    <div style={{ marginBottom: 40 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1C4B82", borderBottom: "1px solid #ddd", paddingBottom: 10, marginBottom: 20 }}>Classificação por Dimensão</h2>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr style={{ background: "#F2F4F7", borderBottom: "2px solid #1C4B82" }}>
+            {["Dimensão", "Escore", "Nível", "Ação Recomendada"].map(h => (
+              <th key={h} style={{ padding: 12, textAlign: h === "Escore" || h === "Nível" ? "center" : "left", fontWeight: 700, color: "#1C4B82" }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {dims.map(dim => {
+            const nivel = dim.v >= 3.5 ? "CRÍTICA" : dim.v >= 2.5 ? "ALTA" : dim.v >= 1.5 ? "MÉDIA" : "OK";
+            const cor   = dim.v >= 3.5 ? "#8B0000" : dim.v >= 2.5 ? "#C75A4C" : dim.v >= 1.5 ? "#D89A3F" : "#2F7D6F";
+            const acao  = dim.v >= 3.5 ? "Ação urgente — reunião imediata" : dim.v >= 2.5 ? "Plano de ação em até 15 dias" : dim.v >= 1.5 ? "Monitorar mensalmente" : "Manter práticas atuais";
+            return (
+              <tr key={dim.name} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={{ padding: 12 }}>{dim.name}</td>
+                <td style={{ padding: 12, textAlign: "center", fontWeight: 600 }}>{dim.v.toFixed(2)}</td>
+                <td style={{ padding: 12, textAlign: "center" }}>
+                  <span style={{ display: "inline-block", padding: "4px 10px", background: cor, color: "#fff", borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{nivel}</span>
+                </td>
+                <td style={{ padding: 12, fontSize: 13 }}>{acao}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <div style={{ marginBottom: 40 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1C4B82", borderBottom: "1px solid #ddd", paddingBottom: 10, marginBottom: 16 }}>Plano de Ação Priorizado</h2>
+      <p style={{ fontSize: 13, fontWeight: 700, color: "#C75A4C", marginBottom: 8 }}>Prioridade 1 — Implementar em até 15 dias</p>
+      <ul style={{ paddingLeft: 20, fontSize: 13 }}>
+        {dims.filter(d => d.v >= 2.5).map(dim => (
+          <li key={dim.name} style={{ marginBottom: 6 }}><strong>{dim.name}</strong> ({dim.v.toFixed(2)}/4.0)</li>
+        ))}
+      </ul>
+      <p style={{ fontSize: 13, fontWeight: 700, color: "#D89A3F", marginTop: 16, marginBottom: 8 }}>Prioridade 2 — Monitorar</p>
+      <ul style={{ paddingLeft: 20, fontSize: 13 }}>
+        {dims.filter(d => d.v >= 1.5 && d.v < 2.5).map(dim => (
+          <li key={dim.name} style={{ marginBottom: 6 }}><strong>{dim.name}</strong> ({dim.v.toFixed(2)}/4.0)</li>
+        ))}
+      </ul>
+    </div>
+    <div style={{ marginTop: 60, paddingTop: 20, borderTop: "2px solid #eee", fontSize: 11, color: "#999", textAlign: "center" }}>
+      <p>Matriz de Risco NR-1 · Menctor · Consultor: Caio Guedes · 27 de maio de 2026</p>
+    </div>
+  </div>
+);
+
+const RelatoriosFinaisScreen = ({ navigate }) => {
+  const [expandedId, setExpandedId]   = React.useState(null);
+  const [previewInfo, setPreviewInfo] = React.useState(null);
+  const [exportMsg, setExportMsg]     = React.useState("");
+
+  const lista = AVALIACOES_ATIVAS.filter(a => a.media !== null);
+
+  if (previewInfo) {
+    return (
+      <div style={{ padding: "20px 40px", background: "#fff", minHeight: "100vh" }}>
+        <button onClick={() => setPreviewInfo(null)} style={{ marginBottom: 20, padding: "8px 14px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <Icon name="chevron-left" size={14} /> Voltar
+        </button>
+        <div style={{ maxWidth: 900, margin: "0 auto", background: "#fff", border: "1px solid #eee" }}>
+          {previewInfo.tipo === "psicossocial"
+            ? <RelatorioPsicossocial avaliacao={previewInfo.avaliacao} dims={DIMS_RELATORIO} />
+            : <MatrizNR1             avaliacao={previewInfo.avaliacao} dims={DIMS_RELATORIO} />
+          }
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Page>
+      <div style={{ marginBottom: 32 }}>
+        <div className="eyebrow" style={{ marginBottom: 8 }}>Administrador · Loghaus Logística</div>
+        <h1 className="display" style={{ fontSize: 44, margin: 0 }}>Relatórios Finais</h1>
+        <p style={{ margin: "10px 0 0", fontSize: 15, color: "var(--ink-muted)", maxWidth: 680 }}>
+          Exporte o Relatório de Risco Psicossocial e a Matriz NR-1 das avaliações concluídas.
+        </p>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {lista.map(a => {
+          const aberta = expandedId === a.id;
+          return (
+            <div key={a.id} className="card" style={{ padding: 0, overflow: "hidden" }}>
+              <button
+                onClick={() => setExpandedId(aberta ? null : a.id)}
+                style={{ width: "100%", padding: 24, display: "flex", alignItems: "center", gap: 20, border: "none", background: "transparent", cursor: "pointer", textAlign: "left" }}
+              >
+                <RiskMedallion value={a.media} size={80} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 6 }}>
+                    <h3 style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 20, margin: 0, color: "var(--ink)" }}>{a.titulo}</h3>
+                    <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: a.status === "Encerrada" ? "var(--surface-sage)" : "var(--canvas-warm)", color: a.status === "Encerrada" ? "var(--health-deep)" : "var(--ink-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      {a.status}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 13, color: "var(--ink-muted)" }}>
+                    {a.periodo} · {a.respondidos} de {a.alvo} respostas ({a.adesao}% adesão)
+                  </p>
+                </div>
+                <Icon name={aberta ? "chevron-down" : "chevron-right"} size={20} color="var(--ink-muted)" />
+              </button>
+
+              {aberta && (
+                <div style={{ borderTop: "1px solid var(--line)", padding: 24, background: "var(--canvas-warm)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div className="card" style={{ padding: 22, background: "#fff" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <Icon name="file" size={18} color="var(--health-deep)" />
+                      <h4 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--ink)" }}>Risco Psicossocial</h4>
+                    </div>
+                    <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--ink-muted)", lineHeight: 1.5 }}>
+                      Análise COPSOQ II com dimensões, recomendações e insights por setor.
+                    </p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => setPreviewInfo({ tipo: "psicossocial", avaliacao: a })} className="btn btn-soft" style={{ flex: 1, height: 34, fontSize: 12 }}>
+                        <Icon name="eye" size={13} /> Ver
+                      </button>
+                      <button onClick={() => { setExportMsg("Relatório Psicossocial preparado para download."); setTimeout(() => setExportMsg(""), 3000); }} className="btn btn-health" style={{ flex: 1, height: 34, fontSize: 12 }}>
+                        <Icon name="download" size={13} /> PDF
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="card" style={{ padding: 22, background: "#fff" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <Icon name="file" size={18} color="var(--coral)" />
+                      <h4 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--ink)" }}>Matriz NR-1</h4>
+                    </div>
+                    <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--ink-muted)", lineHeight: 1.5 }}>
+                      Classificação por severidade e plano de ação priorizado conforme NR-1.
+                    </p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => setPreviewInfo({ tipo: "matriz", avaliacao: a })} className="btn btn-soft" style={{ flex: 1, height: 34, fontSize: 12 }}>
+                        <Icon name="eye" size={13} /> Ver
+                      </button>
+                      <button onClick={() => { setExportMsg("Matriz NR-1 preparada para download."); setTimeout(() => setExportMsg(""), 3000); }} className="btn btn-accent" style={{ flex: 1, height: 34, fontSize: 12 }}>
+                        <Icon name="download" size={13} /> PDF
+                      </button>
+                    </div>
+                  </div>
+
+                  {exportMsg && (
+                    <div style={{ gridColumn: "1 / -1", padding: "10px 14px", borderRadius: 8, background: "var(--surface-sage)", color: "var(--health-deep)", fontSize: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                      <Icon name="check" size={14} /> {exportMsg}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Page>
+  );
+};
+
+Object.assign(window, { AdminSidebar, AdminHome, AdminColaboradores, AdminVitrine, RelatoriosFinaisScreen });

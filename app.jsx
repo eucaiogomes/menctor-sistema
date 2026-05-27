@@ -1,4 +1,4 @@
-/* global React, ReactDOM, Sidebar, AdminSidebar, HomeScreen, DiagnosticosScreen, DiagnosticoDetalheScreen, ClientesScreen, AprendizadoScreen, PortalPropostaScreen, AdminHome, AdminColaboradores, AdminVitrine, AlunoApp, RoleSwitcher */
+/* global React, ReactDOM, Sidebar, AdminSidebar, HomeScreen, DiagnosticosScreen, DiagnosticoDetalheScreen, ClientesScreen, AprendizadoScreen, PortalPropostaScreen, AdminHome, AdminColaboradores, AdminVitrine, RelatoriosFinaisScreen, AlunoApp, RoleSwitcher */
 const { useState } = React;
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -55,10 +55,11 @@ function App() {
         <div style={{ flex: 1, minWidth: 0 }}>
           {(route.screen === "admin-home" || route.screen === "home") && <AdminHome navigate={navigate} />}
           {route.screen === "admin-diagnosticos" && <DiagnosticosScreen navigate={navigate} initialCreate={route.params.create} />}
+          {route.screen === "admin-relatorios"   && <RelatoriosFinaisScreen navigate={navigate} />}
           {route.screen === "admin-colaboradores" && <AdminColaboradores />}
           {route.screen === "admin-vitrine" && <AdminVitrine />}
           {route.screen === "admin-aprendizado" && <AprendizadoScreen navigate={navigate} />}
-          {route.screen === "diagnostico-detalhe" && <DiagnosticoDetalheScreen navigate={(s)=>navigate(s.startsWith("admin")?s:`admin-${s==="diagnosticos"?"diagnosticos":"home"}`)} avaliacao={route.params.avaliacao} cliente={route.params.cliente} />}
+          {route.screen === "diagnostico-detalhe" && <DiagnosticoDetalheScreen navigate={(s, params = {})=>navigate(s.startsWith("admin")?s:`admin-${s==="diagnosticos"?"diagnosticos":"home"}`, params)} avaliacao={route.params.avaliacao} cliente={route.params.cliente} />}
         </div>
       </div>
     );

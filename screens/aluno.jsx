@@ -5,9 +5,26 @@
 // Screens: home, responder, concluido, trilhas, trilha, historico
 // ════════════════════════════════════════════════════════════
 
-const AlunoApp = ({ onLogout }) => {
+const AlunoApp = ({ onLogout, previewConfig }) => {
   const [view, setView] = React.useState({ screen: "home" });
-  const go = (screen, params = {}) => { setView({ screen, ...params }); window.scrollTo(0, 0); };
+  const defaultConfig = previewConfig || window.MENCTOR_PORTAL_CONFIG || { diagnosticos: true, trilhas: true, historico: true, falarRh: false, welcome: "Este e seu espaco de cuidado. Suas respostas sao sempre confidenciais; nenhum gestor consegue identificar respostas individuais." };
+  const [portalConfig, setPortalConfig] = React.useState(defaultConfig);
+  React.useEffect(() => {
+    if (previewConfig) return;
+    const syncConfig = (event) => setPortalConfig(event.detail || window.MENCTOR_PORTAL_CONFIG || defaultConfig);
+    window.addEventListener("menctor:portal-config", syncConfig);
+    return () => window.removeEventListener("menctor:portal-config", syncConfig);
+  }, [previewConfig]);
+  React.useEffect(() => {
+    if (previewConfig) setPortalConfig(previewConfig);
+  }, [previewConfig]);
+  const canOpen = (screen) => (
+    screen === "home" ||
+    (["responder", "concluido"].includes(screen) && portalConfig.diagnosticos) ||
+    (["trilhas", "trilha"].includes(screen) && portalConfig.trilhas) ||
+    (screen === "historico" && portalConfig.historico)
+  );
+  const go = (screen, params = {}) => { setView({ screen: canOpen(screen) ? screen : "home", ...params }); window.scrollTo(0, 0); };
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--canvas)" }}>
@@ -33,10 +50,10 @@ const AlunoApp = ({ onLogout }) => {
 
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             {[
-              { key: "home",      label: "Início" },
-              { key: "trilhas",   label: "Conteúdo" },
-              { key: "historico", label: "Histórico" },
-            ].map(({ key, label }) => {
+              { key: "home",      label: "Início", show: true },
+              { key: "trilhas",   label: "Conteúdo", show: portalConfig.trilhas },
+              { key: "historico", label: "Histórico", show: portalConfig.historico },
+            ].filter(item => item.show).map(({ key, label }) => {
               const active = view.screen === key || (key === "trilhas" && view.screen === "trilha");
               return (
                 <button key={key} onClick={() => go(key)} style={{
@@ -62,12 +79,12 @@ const AlunoApp = ({ onLogout }) => {
       </header>
 
       <main style={{ maxWidth: 1400, margin: "0 auto", padding: "40px 40px 80px" }}>
-        {view.screen === "home"      && <AlunoHome go={go} />}
-        {view.screen === "responder" && <AlunoResponder go={go} />}
-        {view.screen === "concluido" && <AlunoQuestionarioConcluido go={go} />}
-        {view.screen === "trilhas"   && <AlunoTrilhas go={go} />}
-        {view.screen === "trilha"    && <AlunoTrilhaDetalhe go={go} trilhaId={view.trilhaId} />}
-        {view.screen === "historico" && <AlunoHistorico go={go} />}
+        {view.screen === "home"      && <AlunoHome go={go} portalConfig={portalConfig} />}
+        {view.screen === "responder" && portalConfig.diagnosticos && <AlunoResponder go={go} />}
+        {view.screen === "concluido" && portalConfig.diagnosticos && <AlunoQuestionarioConcluido go={go} />}
+        {view.screen === "trilhas"   && portalConfig.trilhas && <AlunoTrilhas go={go} />}
+        {view.screen === "trilha"    && portalConfig.trilhas && <AlunoTrilhaDetalhe go={go} trilhaId={view.trilhaId} />}
+        {view.screen === "historico" && portalConfig.historico && <AlunoHistorico go={go} />}
       </main>
     </div>
   );
@@ -160,7 +177,7 @@ const ContentCarousel = ({ go }) => {
 };
 
 // ── HOME ───────────────────────────────────────────────────────
-const AlunoHome = ({ go }) => (
+const AlunoHome = ({ go, portalConfig }) => (
   <>
     <div style={{ marginBottom: 40 }}>
       <div className="eyebrow" style={{ marginBottom: 12 }}>Quinta · 27 de maio</div>
@@ -169,12 +186,12 @@ const AlunoHome = ({ go }) => (
         <em style={{ fontStyle: "italic", color: "var(--health-deep)" }}>Como você está?</em>
       </h1>
       <p style={{ margin: "18px 0 0", fontSize: 16.5, color: "var(--ink-soft)", maxWidth: 580, lineHeight: 1.55 }}>
-        Este é seu espaço de cuidado. Suas respostas são sempre confidenciais — nenhum gestor consegue identificar respostas individuais.
+        {portalConfig.welcome}
       </p>
     </div>
 
     {/* Diagnóstico ativo */}
-    <div className="card" style={{
+    {portalConfig.diagnosticos && <div className="card" style={{
       padding: 32, marginBottom: 16,
       background: "linear-gradient(135deg, #2F7D6F 0%, #5BAD72 100%)",
       color: "#fff", borderRadius: 24, position: "relative", overflow: "hidden"
@@ -196,12 +213,23 @@ const AlunoHome = ({ go }) => (
           <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.7)" }}>Fecha em 4 dias</span>
         </div>
       </div>
-    </div>
+    </div>}
 
-    <ContentCarousel go={go} />
+    {portalConfig.trilhas && <ContentCarousel go={go} />}
 
     {/* Histórico resumido */}
-    <div style={{ marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+    {portalConfig.falarRh && (
+      <div className="card" style={{ padding: 22, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--sky-soft)" }}>
+        <div>
+          <div className="eyebrow" style={{ marginBottom: 6 }}>Canal confidencial</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)" }}>Falar com o RH da Loghaus</div>
+          <div style={{ fontSize: 13, color: "var(--ink-muted)", marginTop: 4 }}>Envie uma mensagem privada para o time de pessoas.</div>
+        </div>
+        <button className="btn btn-primary" style={{ height: 38 }}><Icon name="send" size={14}/> Falar com RH</button>
+      </div>
+    )}
+
+    {portalConfig.historico && <><div style={{ marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
       <h2 className="display" style={{ fontSize: 24, margin: 0 }}>Seu histórico</h2>
       <button onClick={() => go("historico")} style={{ fontSize: 13, color: "var(--ink-muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
         Ver tudo <Icon name="arrow-right" size={13}/>
@@ -230,7 +258,7 @@ const AlunoHome = ({ go }) => (
           <Icon name="chevron-right" size={15} color="var(--ink-muted)"/>
         </button>
       ))}
-    </div>
+    </div></>}
   </>
 );
 
