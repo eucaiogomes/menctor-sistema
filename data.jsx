@@ -4,11 +4,41 @@
 // ════════════════════════════════════════════════════════════
 
 const CLIENTES = [
-  { id: "loghaus",  name: "Loghaus Logística", cnpj: "12.345.678/0001-90", contact: "Mariana Aguiar",  sector: "Logística",   employees: 340, status: "ativo",      mrr: 4280, lastDiag: "há 2 dias",  risk: 2.35, color: "#2F7D6F" },
-  { id: "vitamed",  name: "VitaMed Saúde",     cnpj: "98.765.432/0001-12", contact: "Roberto Lima",    sector: "Saúde",       employees: 612, status: "ativo",      mrr: 6890, lastDiag: "há 9 dias",  risk: 1.82, color: "#5BAD72" },
-  { id: "agrocorp", name: "AgroCorp Brasil",   cnpj: "45.678.901/0001-33", contact: "Fernanda Souza",  sector: "Agroindústria",employees: 1240,status: "ativo",      mrr: 12400,lastDiag: "há 4 dias",  risk: 2.71, color: "#D89A3F" },
-  { id: "fintech",  name: "Norte Fintech",     cnpj: "33.221.100/0001-55", contact: "Caio Barbosa",    sector: "Financeiro",  employees: 180, status: "negociacao", mrr: 0,    lastDiag: null,         risk: null, color: "#4E83A8" },
-  { id: "edutec",   name: "EduTec Cooperativa",cnpj: "77.889.900/0001-22", contact: "Ana Paula Rios",  sector: "Educação",    employees: 92,  status: "negociacao", mrr: 0,    lastDiag: null,         risk: null, color: "#C75A4C" },
+  {
+    id: "loghaus",  name: "Loghaus Logística",  cnpj: "12.345.678/0001-90", contact: "Mariana Aguiar",
+    sector: "Logística",    employees: 340,  status: "ativo",      mrr: 4280,  lastDiag: "há 2 dias",  risk: 2.35, color: "#2F7D6F",
+    riskTrend: "down",   mainRisk: "Carga de trabalho",  lastPulseDate: "15/05/2026",
+    nextAction: "Workshop anti-burnout — Operações · 02/jun",
+    healthScore: 64,
+  },
+  {
+    id: "vitamed",  name: "VitaMed Saúde",      cnpj: "98.765.432/0001-12", contact: "Roberto Lima",
+    sector: "Saúde",        employees: 612,  status: "ativo",      mrr: 6890,  lastDiag: "há 9 dias",  risk: 1.82, color: "#5BAD72",
+    riskTrend: "stable", mainRisk: "Suporte social",      lastPulseDate: "08/05/2026",
+    nextAction: "Pulse mensal de maio — agendado para 30/05",
+    healthScore: 82,
+  },
+  {
+    id: "agrocorp", name: "AgroCorp Brasil",    cnpj: "45.678.901/0001-33", contact: "Fernanda Souza",
+    sector: "Agroindústria",employees: 1240, status: "ativo",      mrr: 12400, lastDiag: "há 4 dias",  risk: 2.71, color: "#D89A3F",
+    riskTrend: "up",     mainRisk: "Burnout",             lastPulseDate: "12/05/2026",
+    nextAction: "Apresentar resultados ao RH · reunião 03/jun",
+    healthScore: 48,
+  },
+  {
+    id: "fintech",  name: "Norte Fintech",      cnpj: "33.221.100/0001-55", contact: "Caio Barbosa",
+    sector: "Financeiro",   employees: 180,  status: "negociacao", mrr: 0,     lastDiag: null,         risk: null, color: "#4E83A8",
+    riskTrend: null,     mainRisk: null,                  lastPulseDate: null,
+    nextAction: "Proposta enviada — aguardando aceite",
+    healthScore: null,
+  },
+  {
+    id: "edutec",   name: "EduTec Cooperativa", cnpj: "77.889.900/0001-22", contact: "Ana Paula Rios",
+    sector: "Educação",     employees: 92,   status: "negociacao", mrr: 0,     lastDiag: null,         risk: null, color: "#C75A4C",
+    riskTrend: null,     mainRisk: null,                  lastPulseDate: null,
+    nextAction: "Demo agendada para 04/jun com Ana Paula",
+    healthScore: null,
+  },
 ];
 
 const COPSOQ_DIMS = [
