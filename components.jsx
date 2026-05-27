@@ -119,7 +119,17 @@ const Sidebar = ({ active, onNavigate }) => {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <button
-          style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, fontSize: 14, color: "var(--ink-soft)", textAlign: "left" }}>
+          onClick={() => {
+            const currentUrl = localStorage.getItem('RELATORIO_API_URL') || 'http://localhost:5000';
+            const newUrl = prompt('Configurar URL da API de Relatório (Ex: https://sua-api.render.com):', currentUrl);
+            if (newUrl !== null) {
+              const formattedUrl = newUrl.trim().replace(/\/$/, ""); // remove trailing slash
+              localStorage.setItem('RELATORIO_API_URL', formattedUrl);
+              alert('URL da API atualizada com sucesso!');
+              window.location.reload();
+            }
+          }}
+          style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10, fontSize: 14, color: "var(--ink-soft)", textAlign: "left", cursor: "pointer", width: "100%", border: "none", background: "none" }}>
           <Icon name="settings" size={16} strokeWidth={1.5} />
           <span>Ajustes</span>
         </button>

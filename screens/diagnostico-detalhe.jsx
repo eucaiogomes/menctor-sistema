@@ -62,7 +62,8 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
       };
 
       // Enviar para o servidor
-      const response = await fetch("http://localhost:5000/api/gerar-relatorio", {
+      const apiBase = (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('RELATORIO_API_URL')) || "http://localhost:5000";
+      const response = await fetch(`${apiBase}/api/gerar-relatorio`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
