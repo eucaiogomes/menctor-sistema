@@ -15,26 +15,28 @@ const PLANOS = [
   { id: "scale",    nome: "Corporativo", desc: "Acima de 500",            preco: 8900,  destaque: false },
 ];
 
-const NovoClienteFullPage = ({ onClose }) => {
+const NovoClienteFullPage = ({ onClose, initialData = {}, mode = "cliente", onProposalSent }) => {
   const [step, setStep] = React.useState(1);
   const [data, setData] = React.useState({
-    cnpj: "",
-    razao: "",
-    fantasia: "",
-    setor: "",
-    colab: "",
-    site: "",
-    contatoNome: "",
-    contatoCargo: "",
-    contatoEmail: "",
-    contatoFone: "",
+    cnpj: initialData.cnpj || "",
+    razao: initialData.razao || "",
+    fantasia: initialData.fantasia || "",
+    setor: initialData.setor || "",
+    colab: initialData.colab || "",
+    site: initialData.site || "",
+    contatoNome: initialData.contatoNome || "",
+    contatoCargo: initialData.contatoCargo || "",
+    contatoEmail: initialData.contatoEmail || "",
+    contatoFone: initialData.contatoFone || "",
     convidar: true,
-    plano: "growth",
-    subdominio: "",
-    mrr: 4200,
-    inicio: "imediato",
+    plano: initialData.plano || "growth",
+    subdominio: initialData.subdominio || "",
+    mrr: initialData.mrr || 4200,
+    inicio: initialData.inicio || "imediato",
   });
   const [done, setDone] = React.useState(false);
+  const isProposalMode = mode === "proposta";
+  const finalActionLabel = isProposalMode ? "Salvar" : "Criar cliente";
 
   const upd = (k, v) => setData({ ...data, [k]: v });
 
@@ -45,7 +47,7 @@ const NovoClienteFullPage = ({ onClose }) => {
     }
   }, [data.fantasia, data.razao]);
 
-  if (done) return <SuccessScreen data={data} onClose={onClose} />;
+  if (done) return <SuccessScreen data={data} onClose={onClose} mode={mode} onProposalSent={onProposalSent} />;
 
   const planoAtivo = PLANOS.find(p => p.id === data.plano);
   const nomeEmpresa = data.fantasia || data.razao || "sua empresa";
@@ -96,12 +98,12 @@ const NovoClienteFullPage = ({ onClose }) => {
           <div style={{ marginBottom: 32 }}>
             <div className="eyebrow" style={{ marginBottom: 10 }}>Etapa {step} de 3</div>
             <h1 className="display" style={{ fontSize: 40, margin: 0, lineHeight: 1.05 }}>
-              {step === 1 && <>Vamos cadastrar um <em style={{ color: "var(--health-deep)" }}>novo cliente</em>.</>}
+              {step === 1 && (isProposalMode ? <>Revise a <em style={{ color: "var(--health-deep)" }}>proposta do lead</em>.</> : <>Vamos cadastrar um <em style={{ color: "var(--health-deep)" }}>novo cliente</em>.</>)}
               {step === 2 && "Quem vai gerenciar este portal?"}
               {step === 3 && "Defina o plano e o endereço do portal."}
             </h1>
             <p style={{ margin: "12px 0 0", fontSize: 15, color: "var(--ink-muted)", maxWidth: 520, lineHeight: 1.55 }}>
-              {step === 1 && "Comece com os dados da empresa. Você pode editar tudo depois."}
+              {step === 1 && (isProposalMode ? "Os dados do lead já vieram preenchidos. Ajuste o que precisar antes de salvar a proposta." : "Comece com os dados da empresa. Você pode editar tudo depois.")}
               {step === 2 && "Esta pessoa será o admin RH — recebe acesso para aplicar diagnósticos e gerenciar colaboradores."}
               {step === 3 && "O subdomínio é o endereço que os colaboradores vão usar para responder os diagnósticos."}
             </p>
@@ -248,7 +250,7 @@ const NovoClienteFullPage = ({ onClose }) => {
           {/* Hint */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ink-muted)", padding: "0 4px" }}>
             <Icon name="sparkles" size={13} color="var(--health-deep)" />
-            O e-mail real será enviado assim que você clicar em <strong style={{ color: "var(--ink-soft)" }}>Criar cliente</strong>.
+            O e-mail real será enviado assim que você clicar em <strong style={{ color: "var(--ink-soft)" }}>{finalActionLabel}</strong>.
           </div>
         </div>
       </div>
@@ -270,7 +272,7 @@ const NovoClienteFullPage = ({ onClose }) => {
         </div>
         {step < 3
           ? <button onClick={() => setStep(step + 1)} className="btn btn-primary" style={{ height: 40, padding: "0 22px" }}>Continuar <Icon name="arrow-right" size={14}/></button>
-          : <button onClick={() => setDone(true)} className="btn btn-accent" style={{ height: 40, padding: "0 22px" }}><Icon name="check" size={14}/> Criar cliente</button>
+          : <button onClick={() => setDone(true)} className="btn btn-accent" style={{ height: 40, padding: "0 22px" }}><Icon name="check" size={14}/> {finalActionLabel}</button>
         }
       </div>
     </div>
@@ -436,8 +438,111 @@ const StepPlano = ({ data, upd }) => {
 };
 
 // ─── SUCCESS ─────────────────────────────────────────────────
-const SuccessScreen = ({ data, onClose }) => {
+const SuccessScreen = ({ data, onClose, mode = "cliente", onProposalSent }) => {
   const plano = PLANOS.find(p => p.id === data.plano);
+  const empresa = data.fantasia || data.razao || "Novo cliente";
+  const isProposalMode = mode === "proposta";
+  const [sendingProposal, setSendingProposal] = React.useState(false);
+  const [proposalError, setProposalError] = React.useState("");
+  const handleSendProposal = async () => {
+    if (!onProposalSent) {
+      onClose();
+      return;
+    }
+    setSendingProposal(true);
+    setProposalError("");
+    try {
+      await onProposalSent(data);
+    } catch (err) {
+      setProposalError(err.message || "Nao foi possivel enviar a proposta.");
+    } finally {
+      setSendingProposal(false);
+    }
+  };
+
+  if (isProposalMode) {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--canvas)", display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 36px" }}>
+        <div style={{ width: "100%", maxWidth: 920 }}>
+          <div style={{ textAlign: "center", marginBottom: 26 }}>
+            <div style={{ width: 72, height: 72, borderRadius: 999, background: "var(--surface-sage)", color: "var(--health-deep)", margin: "0 auto 18px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon name="send" size={30} strokeWidth={1.8}/>
+            </div>
+            <div className="eyebrow" style={{ marginBottom: 8, color: "var(--health-deep)" }}>Proposta salva</div>
+            <h1 className="display" style={{ fontSize: 38, margin: 0, lineHeight: 1.05 }}>
+              Proposta pronta para {empresa}.
+            </h1>
+            <p style={{ margin: "12px auto 0", fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.55, maxWidth: 560 }}>
+              Confira a prévia comercial antes de reenviar ao decisor. Os dados vieram do lead e ficaram salvos no fluxo de proposta.
+            </p>
+          </div>
+
+          <div className="card" style={{ padding: 0, overflow: "hidden", background: "#fff" }}>
+            <div style={{ padding: "26px 30px", display: "flex", justifyContent: "space-between", gap: 20, borderBottom: "1px solid var(--line)" }}>
+              <div>
+                <div className="eyebrow" style={{ marginBottom: 8 }}>Prévia da proposta</div>
+                <h2 className="display" style={{ fontSize: 30, margin: 0 }}>{empresa}</h2>
+                <p style={{ margin: "8px 0 0", color: "var(--ink-muted)", fontSize: 14 }}>
+                  Saúde psicossocial, NR-1 e portal do colaborador.
+                </p>
+              </div>
+              <div style={{ textAlign: "right", fontSize: 12, color: "var(--ink-muted)" }}>
+                <div>Contato: <strong style={{ color: "var(--ink)" }}>{data.contatoNome || "a confirmar"}</strong></div>
+                <div style={{ marginTop: 4 }}>{data.contatoEmail || "e-mail não informado"}</div>
+              </div>
+            </div>
+
+            <div style={{ padding: 30 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 26 }}>
+                <ProposalMetric label="Plano" value={plano?.nome || "Crescimento"} />
+                <ProposalMetric label="Valor mensal" value={`R$ ${(data.mrr || 0).toLocaleString("pt-BR")}`} />
+                <ProposalMetric label="Cobertura" value={data.colab ? `${data.colab} colab.` : "A definir"} />
+                <ProposalMetric label="Portal" value={data.subdominio ? `${data.subdominio}.menctor` : "Personalizado"} />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: 28 }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", marginBottom: 12 }}>Escopo incluído</div>
+                  {[
+                    "Diagnóstico psicossocial alinhado à NR-1",
+                    "Portal do colaborador com trilhas e questionários",
+                    "Painel administrativo para RH e lideranças",
+                    "Relatórios consolidados para plano de ação e auditoria",
+                  ].map(item => (
+                    <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10, fontSize: 13.5, color: "var(--ink-soft)" }}>
+                      <span style={{ color: "var(--health-deep)", fontWeight: 800 }}>✓</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ border: "1px solid var(--line)", borderRadius: 14, padding: 18, background: "var(--canvas-warm)" }}>
+                  <div className="eyebrow" style={{ marginBottom: 10 }}>Resumo comercial</div>
+                  <SummaryRow label="Empresa" value={empresa} />
+                  <SummaryRow label="Setor" value={data.setor || "A confirmar"} />
+                  <SummaryRow label="Contato" value={data.contatoNome || "A confirmar"} />
+                  <SummaryRow label="Investimento anual" value={`R$ ${((data.mrr || 0) * 12).toLocaleString("pt-BR")}`} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 22 }}>
+            <button onClick={onClose} className="btn btn-ghost" style={{ height: 40 }}>Voltar para pipeline</button>
+            <button onClick={handleSendProposal} disabled={sendingProposal} className="btn btn-accent" style={{ height: 40, opacity: sendingProposal ? 0.72 : 1 }}>
+              <Icon name="send" size={14}/> {sendingProposal ? "Enviando..." : "Enviar proposta por e-mail"}
+            </button>
+          </div>
+          {proposalError && (
+            <div style={{ margin: "12px auto 0", maxWidth: 460, padding: "9px 12px", borderRadius: 10, background: "var(--coral-soft)", color: "var(--coral)", fontSize: 12, textAlign: "center" }}>
+              {proposalError}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--canvas)", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 36px" }}>
       <div style={{ width: "100%", maxWidth: 580, textAlign: "center" }}>
@@ -476,6 +581,13 @@ const SummaryRow = ({ label, value }) => (
   <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderTop: "1px dashed var(--line-strong)" }}>
     <span style={{ fontSize: 12.5, color: "var(--ink-muted)" }}>{label}</span>
     <span style={{ fontSize: 13.5, color: "var(--ink)", fontWeight: 500, textAlign: "right" }}>{value}</span>
+  </div>
+);
+
+const ProposalMetric = ({ label, value }) => (
+  <div style={{ border: "1px solid var(--line)", borderRadius: 12, padding: 16, background: "var(--surface)" }}>
+    <div className="eyebrow" style={{ marginBottom: 8 }}>{label}</div>
+    <div style={{ fontSize: 17, fontWeight: 800, color: "var(--ink)" }}>{value}</div>
   </div>
 );
 

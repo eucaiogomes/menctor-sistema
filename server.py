@@ -11,6 +11,8 @@ import io
 import sys
 import os
 import tempfile
+import smtplib
+from email.message import EmailMessage
 
 # Add current directory to path to import gerar_relatorio
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -19,10 +21,70 @@ from gerar_relatorio_psicossocial import gerar_relatorio
 app = Flask(__name__)
 CORS(app)
 
+def load_env_file():
+    """Load local .env values without requiring an extra dependency."""
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if not os.path.exists(env_path):
+        return
+    with open(env_path, "r", encoding="utf-8-sig") as env_file:
+        for line in env_file:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip())
+
+load_env_file()
+
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""
     return jsonify({"status": "ok", "message": "Servidor de relatórios psicossociais está ativo"}), 200
+
+@app.route('/api/send-email', methods=['POST'])
+def send_email_api():
+    """Send transactional test e-mails through the configured SMTP account."""
+    try:
+        data = request.get_json() or {}
+        to_email = (data.get("to") or "").strip()
+        subject = (data.get("subject") or "").strip()
+        html = data.get("html") or ""
+        text = data.get("text") or ""
+        reply_to = (data.get("replyTo") or "").strip()
+
+        if not to_email or not subject or not (html or text):
+            return jsonify({"error": "Campos obrigatorios: to, subject e html/text"}), 400
+
+        host = os.environ.get("MAIL_HOST")
+        port = int(os.environ.get("MAIL_PORT", "587"))
+        username = os.environ.get("MAIL_USERNAME")
+        password = os.environ.get("MAIL_PASSWORD")
+        from_name = os.environ.get("MAIL_FROM_NAME", "Menctor")
+
+        if not host or not username or not password:
+            return jsonify({"error": "SMTP nao configurado. Verifique MAIL_HOST, MAIL_USERNAME e MAIL_PASSWORD."}), 500
+
+        msg = EmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = f"{from_name} <{username}>"
+        msg["To"] = to_email
+        if reply_to:
+            msg["Reply-To"] = reply_to
+        msg.set_content(text or "Este e-mail possui uma versao HTML.")
+        if html:
+            msg.add_alternative(html, subtype="html")
+
+        with smtplib.SMTP(host, port, timeout=20) as smtp:
+            smtp.starttls()
+            smtp.login(username, password)
+            smtp.send_message(msg)
+
+        return jsonify({"ok": True, "to": to_email, "subject": subject}), 200
+    except Exception as e:
+        print(f"Erro ao enviar e-mail: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Erro ao enviar e-mail: {str(e)}"}), 500
 
 @app.route('/api/gerar-relatorio', methods=['POST'])
 def gerar_relatorio_api():

@@ -1,4 +1,4 @@
-/* global React, ReactDOM, Sidebar, AdminSidebar, HomeScreen, DiagnosticosScreen, DiagnosticoDetalheScreen, ClientesScreen, AprendizadoScreen, PortalPropostaScreen, AdminHome, AdminColaboradores, AdminVitrine, RelatoriosFinaisScreen, AlunoApp, RoleSwitcher */
+/* global React, ReactDOM, Sidebar, AdminSidebar, HomeScreen, DiagnosticosScreen, DiagnosticoDetalheScreen, ClientesScreen, AprendizadoScreen, PortalPropostaScreen, AdminHome, AdminColaboradores, AdminVitrine, RelatoriosFinaisScreen, AlunoApp, LeadInviteForm, RoleSwitcher */
 const { useState } = React;
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -9,7 +9,10 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 function App() {
   const [role, setRole]   = useState("credenciado");
-  const [route, setRoute] = useState({ screen: "home", params: {} });
+  const [route, setRoute] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("lead") === "form" ? { screen: "lead-form", params: {} } : { screen: "home", params: {} };
+  });
 
   const navigate = (screen, params = {}) => {
     setRoute({ screen, params });
@@ -22,6 +25,10 @@ function App() {
     if (r === "admin")       setRoute({ screen: "admin-home", params: {} });
     if (r === "aluno")       setRoute({ screen: "aluno", params: {} });
   };
+
+  if (route.screen === "lead-form") {
+    return <LeadInviteForm />;
+  }
 
   // ─── ALUNO experience: own shell, no sidebar ──────────────
   if (role === "aluno") {
