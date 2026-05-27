@@ -78,6 +78,7 @@ const NAV_ITEMS = [
   { id: "home",         icon: "home",    label: "Visão geral" },
   { id: "diagnosticos", icon: "pulse",   label: "Diagnósticos" },
   { id: "clientes",     icon: "users",   label: "Clientes" },
+  { id: "relatorios",   icon: "file",    label: "Relatórios finais" },
   { id: "aprendizado",  icon: "book",    label: "Aprendizado" },
 ];
 

@@ -78,6 +78,7 @@ function App() {
         {route.screen === "diagnosticos"  && <DiagnosticosScreen  navigate={navigate} initialCreate={route.params.create} />}
         {route.screen === "diagnostico-detalhe" && <DiagnosticoDetalheScreen navigate={navigate} avaliacao={route.params.avaliacao} cliente={route.params.cliente} />}
         {route.screen === "clientes"      && <ClientesScreen      navigate={navigate} initialTab={route.params.tab} />}
+        {route.screen === "relatorios"    && <RelatoriosFinaisScreen navigate={navigate} />}
         {route.screen === "aprendizado"   && <AprendizadoScreen   navigate={navigate} />}
       </div>
     </div>
