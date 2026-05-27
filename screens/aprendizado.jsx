@@ -2,6 +2,12 @@
 
 const AprendizadoScreen = ({ navigate }) => {
   const [selected, setSelected] = React.useState(null);
+  const [recomendado, setRecomendado] = React.useState(false);
+
+  const handleRecomendar = () => {
+    setRecomendado(true);
+    setTimeout(() => setRecomendado(false), 2500);
+  };
 
   if (selected) {
     return <TrailDetail trail={selected} onBack={() => setSelected(null)} navigate={navigate} />;
@@ -39,11 +45,16 @@ const AprendizadoScreen = ({ navigate }) => {
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
-            <button className="btn" style={{ background: "#fff", color: "var(--health-deep)", height: 38 }}>
+            <button className="btn" style={{ background: "#fff", color: "var(--health-deep)", height: 38 }} onClick={handleRecomendar}>
               Recomendar a cliente <Icon name="arrow-right" size={14}/>
             </button>
-            <button className="btn" style={{ background: "rgba(255,255,255,0.18)", color: "#fff", height: 38 }}>Ver conteúdo</button>
+            <button className="btn" style={{ background: "rgba(255,255,255,0.18)", color: "#fff", height: 38 }} onClick={() => setSelected(TRILHAS[0])}>Ver conteúdo</button>
           </div>
+          {recomendado && (
+            <div style={{ marginTop: 12, padding: "8px 14px", background: "rgba(255,255,255,0.22)", borderRadius: 10, fontSize: 13, color: "#fff", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <Icon name="check" size={13} color="#fff"/> Trilha recomendada! Seu cliente receberá uma notificação.
+            </div>
+          )}
         </div>
         <div style={{ padding: 32, display: "flex", flexDirection: "column", justifyContent: "center", background: "var(--surface)" }}>
           <div className="eyebrow" style={{ marginBottom: 16 }}>O que está dentro</div>
