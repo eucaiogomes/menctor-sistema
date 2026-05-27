@@ -1,3 +1,5 @@
 {
+  "buildCommand": "echo 'Menctor System - Frontend only'",
+  "outputDirectory": ".",
   "cleanUrls": true
 }
