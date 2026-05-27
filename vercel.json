@@ -3,14 +3,8 @@
   "outputDirectory": ".",
   "framework": "html",
   "env": {
-    "VITE_API_URL": {
-      "description": "URL da API de relatórios psicossociais",
-      "default": "http://localhost:5000"
-    },
-    "VITE_RELATORIO_API_URL": {
-      "description": "URL completa da API para geração de relatórios",
-      "default": "http://localhost:5000/api"
-    }
+    "VITE_API_URL": "http://localhost:5000",
+    "VITE_RELATORIO_API_URL": "http://localhost:5000/api"
   },
   "git": {
     "deploymentEnabled": {
