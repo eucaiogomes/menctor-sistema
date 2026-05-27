@@ -76,23 +76,32 @@ const AVALIACOES_ATIVAS = [
 
 const LEADS_PIPELINE = {
   lead:     [
-    { id: "l1", empresa: "Construtora Vento Norte", contato: "Júlia Andrade", funcionarios: 220, valor: 3800, dias: 2 },
-    { id: "l2", empresa: "Sul Cooperativa Médica",  contato: "Pedro Belfort", funcionarios: 415, valor: 6200, dias: 5 },
+    { id: "l1", empresa: "Construtora Vento Norte", contato: "Júlia Andrade", funcionarios: 220, valor: 3800, dias: 2,
+      decisor: "Carlos Meireles — Diretor de RH", proximoPasso: "Agendar demonstração do diagnóstico COPSOQ", probabilidade: 40 },
+    { id: "l2", empresa: "Sul Cooperativa Médica",  contato: "Pedro Belfort", funcionarios: 415, valor: 6200, dias: 5,
+      decisor: "Dra. Patrícia Borges — Gerente de Pessoas", proximoPasso: "Enviar material sobre NR-1 e casos de uso", probabilidade: 55 },
   ],
   proposta: [
-    { id: "p1", empresa: "Norte Fintech",          contato: "Caio Barbosa",  funcionarios: 180, valor: 2900, dias: 1 },
-    { id: "p2", empresa: "Indústrias Carvalho",    contato: "Sara Mendes",   funcionarios: 860, valor: 9800, dias: 8 },
+    { id: "p1", empresa: "Norte Fintech",          contato: "Caio Barbosa",  funcionarios: 180, valor: 2900, dias: 1,
+      decisor: "Caio Barbosa — CEO", proximoPasso: "Follow-up da proposta enviada há 8 dias", probabilidade: 70 },
+    { id: "p2", empresa: "Indústrias Carvalho",    contato: "Sara Mendes",   funcionarios: 860, valor: 9800, dias: 8,
+      decisor: "Sara Mendes — CHRO", proximoPasso: "Apresentar estudo de caso AgroCorp na reunião", probabilidade: 60 },
   ],
   aceita:   [
-    { id: "a1", empresa: "EduTec Cooperativa",     contato: "Ana Paula Rios", funcionarios: 92,  valor: 1500, dias: 3 },
+    { id: "a1", empresa: "EduTec Cooperativa",     contato: "Ana Paula Rios", funcionarios: 92,  valor: 1500, dias: 3,
+      decisor: "Ana Paula Rios — Gestora Pedagógica", proximoPasso: "Assinar contrato e iniciar onboarding", probabilidade: 85 },
   ],
   contrato: [
-    { id: "c1", empresa: "TecnoSul Sistemas",      contato: "Rafael Tó",     funcionarios: 130, valor: 2200, dias: 1 },
+    { id: "c1", empresa: "TecnoSul Sistemas",      contato: "Rafael Tó",     funcionarios: 130, valor: 2200, dias: 1,
+      decisor: "Rafael Tó — CEO", proximoPasso: "Receber assinatura digital e ativar conta", probabilidade: 92 },
   ],
   fechado:  [
-    { id: "f1", empresa: "Loghaus Logística",       contato: "Mariana Aguiar", funcionarios: 340, valor: 4280, dias: 12 },
-    { id: "f2", empresa: "VitaMed Saúde",           contato: "Roberto Lima",   funcionarios: 612, valor: 6890, dias: 27 },
-    { id: "f3", empresa: "AgroCorp Brasil",         contato: "Fernanda Souza", funcionarios: 1240,valor: 12400,dias: 41 },
+    { id: "f1", empresa: "Loghaus Logística",       contato: "Mariana Aguiar", funcionarios: 340, valor: 4280, dias: 12,
+      decisor: "Mariana Aguiar — Diretora de RH", proximoPasso: "Onboarding concluído — iniciar 1º diagnóstico", probabilidade: 100 },
+    { id: "f2", empresa: "VitaMed Saúde",           contato: "Roberto Lima",   funcionarios: 612, valor: 6890, dias: 27,
+      decisor: "Roberto Lima — Gestor de Bem-Estar", proximoPasso: "Configurar portal aluno para todas as unidades", probabilidade: 100 },
+    { id: "f3", empresa: "AgroCorp Brasil",         contato: "Fernanda Souza", funcionarios: 1240,valor: 12400,dias: 41,
+      decisor: "Fernanda Souza — VP de RH", proximoPasso: "Expandir diagnóstico para unidade de Goiás", probabilidade: 100 },
   ],
 };
 
