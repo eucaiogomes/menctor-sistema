@@ -236,11 +236,26 @@ const AlunoHome = ({ go }) => (
 
 // ── QUESTIONÁRIO ────────────────────────────────────────────────
 const QUESTIONS = [
-  { num: 1,  q: "Você tem que trabalhar muito rapidamente?",              dim: "Ritmo de trabalho" },
-  { num: 2,  q: "A distribuição de trabalho é equilibrada?",              dim: "Carga de trabalho" },
-  { num: 3,  q: "Você se sente esgotado(a) emocionalmente?",             dim: "Burnout" },
-  { num: 4,  q: "Seu trabalho exige que esconda seus sentimentos?",       dim: "Demandas emocionais" },
-  { num: 5,  q: "Você recebe ajuda e apoio do seu superior imediato?",    dim: "Apoio social" },
+  { num: 1,  q: "Você tem que trabalhar muito rapidamente?",                                       dim: "Ritmo de trabalho" },
+  { num: 2,  q: "A distribuição de trabalho é equilibrada?",                                       dim: "Carga de trabalho" },
+  { num: 3,  q: "Você se sente esgotado(a) emocionalmente?",                                      dim: "Burnout" },
+  { num: 4,  q: "Seu trabalho exige que esconda seus sentimentos?",                                dim: "Demandas emocionais" },
+  { num: 5,  q: "Você recebe ajuda e apoio do seu superior imediato?",                             dim: "Apoio social" },
+  { num: 6,  q: "Você tem liberdade para decidir como realizar o seu trabalho?",                   dim: "Autonomia" },
+  { num: 7,  q: "Com que frequência você tem dificuldade em desligar do trabalho quando está em casa?", dim: "Conflito trabalho-família" },
+  { num: 8,  q: "O seu trabalho tem um significado importante para você?",                         dim: "Significado do trabalho" },
+  { num: 9,  q: "Você confia que a liderança da empresa toma decisões justas?",                    dim: "Confiança na gestão" },
+  { num: 10, q: "Você se preocupa com a possibilidade de perder o emprego?",                       dim: "Insegurança no emprego" },
+  { num: 11, q: "Você consegue influenciar a quantidade de trabalho que recebe?",                  dim: "Autonomia" },
+  { num: 12, q: "Você sente que contribui de forma relevante para os objetivos da empresa?",       dim: "Significado do trabalho" },
+  { num: 13, q: "Você recebe reconhecimento pelo bom trabalho que realiza?",                       dim: "Apoio social" },
+  { num: 14, q: "Com que frequência você pensa em buscar outro emprego?",                          dim: "Comprometimento" },
+  { num: 15, q: "Seu trabalho exige que tome decisões difíceis com frequência?",                   dim: "Carga cognitiva" },
+  { num: 16, q: "Você consegue conciliar bem as demandas do trabalho com sua vida pessoal?",       dim: "Conflito trabalho-família" },
+  { num: 17, q: "Você se sente fisicamente esgotado(a) ao final da jornada de trabalho?",          dim: "Burnout" },
+  { num: 18, q: "Existe um clima de respeito e confiança entre colegas no seu setor?",             dim: "Apoio social" },
+  { num: 19, q: "Você sente que seu emprego está seguro nos próximos 12 meses?",                   dim: "Insegurança no emprego" },
+  { num: 20, q: "Você tem clareza sobre o que é esperado de você no trabalho?",                    dim: "Carga cognitiva" },
 ];
 const OPTS = [
   { v: 0, label: "Sempre",          sub: "Quase 100% do tempo" },
