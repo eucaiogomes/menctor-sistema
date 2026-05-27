@@ -54,13 +54,17 @@ const Tab = ({ id, label, count, active, onClick }) => (
 // ════════════════════════════════════════════════════════════
 // ATIVAS — list of running/draft assessments
 // ════════════════════════════════════════════════════════════
-const AtivasView = ({ navigate }) => (
+const AtivasView = ({ navigate }) => {
+  const [hoveredId, setHoveredId] = React.useState(null);
+  return (
   <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
     {AVALIACOES_ATIVAS.map(a => (
       <button key={a.id}
         onClick={() => navigate("diagnostico-detalhe", { avaliacao: a })}
+        onMouseEnter={() => setHoveredId(a.id)}
+        onMouseLeave={() => setHoveredId(null)}
         className="card"
-        style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr) 160px 130px 100px", gap: 20, padding: "20px 24px", textAlign: "left", alignItems: "center" }}>
+        style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr) 160px 130px 100px", gap: 20, padding: "20px 24px", textAlign: "left", alignItems: "center", transition: "transform 0.15s, box-shadow 0.15s", transform: hoveredId === a.id ? "translateY(-2px)" : "none", boxShadow: hoveredId === a.id ? "var(--shadow-card)" : undefined }}>
         {/* status indicator */}
         <div>
           <span style={{
@@ -110,7 +114,8 @@ const AtivasView = ({ navigate }) => (
       </button>
     ))}
   </div>
-);
+  );
+};
 
 // ════════════════════════════════════════════════════════════
 // BIBLIOTECA — template cards (Perplexity-style)
