@@ -97,8 +97,25 @@ const SETORES = [
   { id: "ti",     nome: "Tecnologia",    colab: 14,  risco: 1.86, adesao: 100 },
 ];
 
+const UNIDADES = [
+  { id: "matriz",   nome: "Matriz · SP",        colab: 198, risco: 2.38, adesao: 93 },
+  { id: "filial-rj",nome: "Filial · RJ",         colab: 87,  risco: 2.55, adesao: 88 },
+  { id: "filial-mg",nome: "Filial · MG",         colab: 55,  risco: 2.12, adesao: 96 },
+];
+
+const TURNOS = [
+  { id: "manha",   nome: "Manhã (06h–14h)",    colab: 134, risco: 2.27, adesao: 95 },
+  { id: "tarde",   nome: "Tarde (14h–22h)",    colab: 128, risco: 2.44, adesao: 91 },
+  { id: "noite",   nome: "Noite (22h–06h)",    colab: 78,  risco: 2.71, adesao: 86 },
+];
+
+const GROUPING_DATA = { setor: SETORES, unidade: UNIDADES, turno: TURNOS };
+
 const AdminHome = ({ navigate }) => {
+  const [sectorGrouping, setSectorGrouping] = React.useState("setor");
+  const grupoAtivo = GROUPING_DATA[sectorGrouping];
   const media = SETORES.reduce((s,x) => s + x.risco * x.colab, 0) / SETORES.reduce((s,x) => s + x.colab, 0);
+  const loghausAvaliacao = AVALIACOES_ATIVAS.find(a => a.cliente === "Loghaus" && a.status === "Em campo") || AVALIACOES_ATIVAS.find(a => a.cliente === "Loghaus");
   return (
     <Page>
       <div style={{ marginBottom: 32 }}>
@@ -149,9 +166,9 @@ const AdminHome = ({ navigate }) => {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
           <h2 className="display" style={{ fontSize: 26, margin: 0 }}>Saúde por setor</h2>
           <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--canvas-warm)", borderRadius: 999 }}>
-            <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--surface)", boxShadow: "var(--shadow-card)" }}>Setor</button>
-            <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, color: "var(--ink-muted)" }}>Unidade</button>
-            <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, color: "var(--ink-muted)" }}>Turno</button>
+            {[["setor","Setor"],["unidade","Unidade"],["turno","Turno"]].map(([id, label]) => (
+              <button key={id} onClick={() => setSectorGrouping(id)} style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, fontWeight: sectorGrouping === id ? 600 : 500, background: sectorGrouping === id ? "var(--surface)" : "transparent", boxShadow: sectorGrouping === id ? "var(--shadow-card)" : "none", color: sectorGrouping === id ? "var(--ink)" : "var(--ink-muted)" }}>{label}</button>
+            ))}
           </div>
         </div>
         <p style={{ margin: "0 0 22px", fontSize: 13, color: "var(--ink-muted)" }}>
@@ -159,10 +176,10 @@ const AdminHome = ({ navigate }) => {
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-          {SETORES.map(s => {
+          {grupoAtivo.map(s => {
             const color = s.risco >= 2.5 ? "var(--coral)" : s.risco >= 1.5 ? "var(--amber)" : "var(--health)";
             return (
-              <button key={s.id} style={{ padding: 18, borderRadius: 14, background: "var(--surface-2)", border: "1px solid var(--line)", textAlign: "left" }}>
+              <button key={s.id} onClick={() => navigate("diagnostico-detalhe", { avaliacao: loghausAvaliacao, setor: s })} style={{ padding: 18, borderRadius: 14, background: "var(--surface-2)", border: "1px solid var(--line)", textAlign: "left" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>{s.nome}</div>
                   <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>{s.colab} colab.</div>
@@ -198,7 +215,7 @@ const AdminHome = ({ navigate }) => {
                 {a.status === "Em campo" && <span className="dot" style={{ background: "var(--health)" }} />}
                 {a.status}
               </span>
-              <button className="btn btn-soft" style={{ height: 32, fontSize: 12 }}>
+              <button onClick={() => a.status === "Aguardando" ? navigate("admin-diagnosticos", { create: true }) : navigate("diagnostico-detalhe", { avaliacao: a })} className="btn btn-soft" style={{ height: 32, fontSize: 12 }}>
                 {a.status === "Aguardando" ? "Aplicar agora" : "Ver resultados"} <Icon name="arrow-right" size={12}/>
               </button>
             </div>
@@ -407,7 +424,30 @@ const DrawerSection = ({ rows }) => (
 // ════════════════════════════════════════════════════════════
 // ADMIN VITRINE config — what employees see in their portal
 // ════════════════════════════════════════════════════════════
-const AdminVitrine = () => (
+const DEFAULT_PORTAL_CONFIG = {
+  diagnosticos: true,
+  trilhas: true,
+  historico: true,
+  falarRh: false,
+  welcome: "Bem-vindo ao espaco de cuidado da Loghaus. Sua resposta e confidencial e nos ajuda a construir um ambiente de trabalho mais saudavel.",
+};
+window.MENCTOR_PORTAL_CONFIG = window.MENCTOR_PORTAL_CONFIG || DEFAULT_PORTAL_CONFIG;
+
+const AdminVitrine = () => {
+  const [config, setConfig] = React.useState(window.MENCTOR_PORTAL_CONFIG || DEFAULT_PORTAL_CONFIG);
+  const [published, setPublished] = React.useState(false);
+  const [previewMode, setPreviewMode] = React.useState("desktop");
+  const update = (key, value) => {
+    setPublished(false);
+    setConfig(prev => ({ ...prev, [key]: value }));
+  };
+  const publish = () => {
+    window.MENCTOR_PORTAL_CONFIG = config;
+    window.dispatchEvent(new CustomEvent("menctor:portal-config", { detail: config }));
+    setPublished(true);
+  };
+
+  return (
   <Page>
     <div style={{ marginBottom: 28 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>Portal do colaborador</div>
@@ -436,17 +476,22 @@ const AdminVitrine = () => (
         </ConfigSection>
 
         <ConfigSection title="Mensagem de boas-vindas">
-          <textarea defaultValue="Bem-vindo ao espaço de cuidado da Loghaus. Sua resposta é confidencial e nos ajuda a construir um ambiente de trabalho mais saudável." style={{ width: "100%", minHeight: 90, padding: 12, border: "1px solid var(--line)", borderRadius: 10, fontSize: 13.5, lineHeight: 1.5, resize: "vertical", background: "var(--surface)" }}/>
+          <textarea value={config.welcome} onChange={e => update("welcome", e.target.value)} style={{ width: "100%", minHeight: 90, padding: 12, border: "1px solid var(--line)", borderRadius: 10, fontSize: 13.5, lineHeight: 1.5, resize: "vertical", background: "var(--surface)" }}/>
         </ConfigSection>
 
         <ConfigSection title="O que mostrar">
-          <Toggle label="Diagnósticos ativos" on />
-          <Toggle label="Trilhas de aprendizado" on />
-          <Toggle label="Histórico de respostas" on />
-          <Toggle label="Falar com o RH" off />
+          <Toggle label="Diagnósticos ativos" on={config.diagnosticos} onClick={() => update("diagnosticos", !config.diagnosticos)} />
+          <Toggle label="Trilhas de aprendizado" on={config.trilhas} onClick={() => update("trilhas", !config.trilhas)} />
+          <Toggle label="Histórico de respostas" on={config.historico} onClick={() => update("historico", !config.historico)} />
+          <Toggle label="Falar com o RH" on={config.falarRh} onClick={() => update("falarRh", !config.falarRh)} />
         </ConfigSection>
 
-        <button className="btn btn-primary" style={{ width: "100%", height: 38, justifyContent: "center", marginTop: 12 }}>Salvar e publicar</button>
+        <button onClick={publish} className="btn btn-primary" style={{ width: "100%", height: 38, justifyContent: "center", marginTop: 12 }}>Salvar e publicar</button>
+        {published && (
+          <div style={{ marginTop: 10, padding: "8px 10px", borderRadius: 10, background: "var(--surface-sage)", color: "var(--health-deep)", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+            <Icon name="check" size={13}/> Publicado no portal do aluno.
+          </div>
+        )}
       </div>
 
       {/* Live preview */}
@@ -457,38 +502,30 @@ const AdminVitrine = () => (
             <div style={{ fontSize: 13.5, color: "var(--ink-muted)", marginTop: 4 }}>loghaus.menctor.com.br</div>
           </div>
           <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--canvas-warm)", borderRadius: 999 }}>
-            <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--surface)", boxShadow: "var(--shadow-card)" }}>Desktop</button>
-            <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, color: "var(--ink-muted)" }}>Mobile</button>
+            {["desktop", "mobile"].map(mode => (
+              <button key={mode} onClick={() => setPreviewMode(mode)} style={{
+                padding: "4px 12px", borderRadius: 999, fontSize: 12,
+                fontWeight: previewMode === mode ? 600 : 500,
+                background: previewMode === mode ? "var(--surface)" : "transparent",
+                boxShadow: previewMode === mode ? "var(--shadow-card)" : "none",
+                color: previewMode === mode ? "var(--ink)" : "var(--ink-muted)",
+              }}>{mode === "desktop" ? "Desktop" : "Mobile"}</button>
+            ))}
           </div>
         </div>
 
-        <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid var(--line)", background: "#FAF7F1" }}>
-          <div style={{ padding: "14px 22px", borderBottom: "1px solid var(--line)", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 26, height: 26, borderRadius: 6, background: "#2F7D6F" }}/>
-              <span style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 18 }}>Loghaus · Cuidar</span>
-            </div>
-            <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>Roberto Tavares</span>
-          </div>
-          <div style={{ padding: 28 }}>
-            <h2 className="display" style={{ fontSize: 28, margin: 0 }}>Olá, Roberto.</h2>
-            <p style={{ fontSize: 13, color: "var(--ink-muted)", margin: "8px 0 16px", maxWidth: 360, lineHeight: 1.5 }}>
-              Bem-vindo ao espaço de cuidado da Loghaus. Sua resposta é confidencial.
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[["Diagnóstico disponível","Pesquisa de Clima · 8 min","var(--surface-peach)","var(--orange-deep)"],["Trilha em andamento","Resiliência · 30% concluído","var(--surface-sage)","var(--health-deep)"]].map((x,i) => (
-                <div key={i} style={{ padding: 14, borderRadius: 12, background: x[2] }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: x[3] }}>{x[0]}</div>
-                  <div style={{ fontSize: 12.5, color: "var(--ink)", marginTop: 4 }}>{x[1]}</div>
-                </div>
-              ))}
-            </div>
+        <div style={{ borderRadius: 16, overflow: "auto", border: "1px solid var(--line)", background: "var(--canvas)", height: 640 }}>
+          <div style={{ width: previewMode === "mobile" ? 390 : "100%", minHeight: "100%", margin: previewMode === "mobile" ? "0 auto" : 0, borderLeft: previewMode === "mobile" ? "1px solid var(--line)" : "none", borderRight: previewMode === "mobile" ? "1px solid var(--line)" : "none" }}>
+            {window.AlunoApp ? <window.AlunoApp previewConfig={config} /> : (
+              <div style={{ padding: 28, color: "var(--ink-muted)", fontSize: 13 }}>Carregando preview do portal do aluno...</div>
+            )}
           </div>
         </div>
       </div>
     </div>
   </Page>
-);
+  );
+};
 
 const ConfigSection = ({ title, children }) => (
   <div style={{ paddingBottom: 16, marginBottom: 16, borderBottom: "1px dashed var(--line-strong)" }}>
@@ -502,13 +539,13 @@ const ConfigRow = ({ label, children }) => (
     {children}
   </div>
 );
-const Toggle = ({ label, on }) => (
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+const Toggle = ({ label, on, onClick }) => (
+  <button onClick={onClick} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", textAlign: "left" }}>
     <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>{label}</span>
     <span style={{ width: 34, height: 20, borderRadius: 99, background: on ? "var(--health)" : "var(--line-strong)", position: "relative", transition: ".2s" }}>
       <span style={{ position: "absolute", top: 2, left: on ? 16 : 2, width: 16, height: 16, borderRadius: 999, background: "#fff" }}/>
     </span>
-  </div>
+  </button>
 );
 
 Object.assign(window, { AdminSidebar, AdminHome, AdminColaboradores, AdminVitrine });

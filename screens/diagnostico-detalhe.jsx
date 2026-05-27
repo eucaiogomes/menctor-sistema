@@ -11,14 +11,14 @@ const SETOR_DIMS = {
 };
 
 const ALL_ACTIONS = [
-  { index: 1, title: "Revisão de carga horária — Operações",    tag: "Carga de trabalho" },
-  { index: 2, title: "Programa anti-burnout para liderança",     tag: "Burnout" },
-  { index: 3, title: "Workshop de gestão de estresse",            tag: "Estresse" },
-  { index: 4, title: "Rodada de escuta ativa com lideranças",    tag: "Qualidade da liderança" },
-  { index: 5, title: "Revisão de métricas de reconhecimento",    tag: "Reconhecimento" },
-  { index: 6, title: "Programa de equilíbrio trabalho-família",  tag: "Conflito trabalho-família" },
-  { index: 7, title: "Treinamento de gestão de ritmo",           tag: "Ritmo de trabalho" },
-  { index: 8, title: "Política de suporte social entre pares",   tag: "Suporte social" },
+  { index: 1, title: "Revisão de carga horária — Operações",    tag: "Carga de trabalho",          owner: "RH + Operações · até 15/jun" },
+  { index: 2, title: "Programa anti-burnout para liderança",     tag: "Burnout",                    owner: "Gestão de Pessoas · até 30/jun" },
+  { index: 3, title: "Workshop de gestão de estresse",            tag: "Estresse",                   owner: "Coordenadores · até 10/jun" },
+  { index: 4, title: "Rodada de escuta ativa com lideranças",    tag: "Qualidade da liderança",     owner: "RH + Diretoria · até 20/jun" },
+  { index: 5, title: "Revisão de métricas de reconhecimento",    tag: "Reconhecimento",             owner: "Gestão de Pessoas · até 30/jun" },
+  { index: 6, title: "Programa de equilíbrio trabalho-família",  tag: "Conflito trabalho-família",  owner: "RH + Benefícios · até 15/jul" },
+  { index: 7, title: "Treinamento de gestão de ritmo",           tag: "Ritmo de trabalho",          owner: "Coordenadores · até 25/jun" },
+  { index: 8, title: "Política de suporte social entre pares",   tag: "Suporte social",             owner: "Gestão de Pessoas · até 10/jul" },
 ];
 
 const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
@@ -156,8 +156,20 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
               <span className="eyebrow" style={{ color: "var(--health-deep)" }}>Insight</span>
             </div>
             <p style={{ margin: 0, fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 20, lineHeight: 1.3, color: "var(--ink)" }}>
-              As três dimensões mais críticas estão concentradas no setor de <em>Operações</em>. Sugerimos um pulse focal em 14 dias.
+              As três dimensões mais críticas estão concentradas no setor de <em>Operações</em>.
             </p>
+            <ul style={{ margin: "12px 0 0", paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                "Carga de trabalho está no percentil 87 — 3× acima da média do setor de Logística",
+                "62% dos colaboradores de Operações relataram sintomas de exaustão emocional nos últimos 30 dias",
+                "Dimensões de Reconhecimento e Suporte social caíram 0.3 pontos vs trimestre anterior",
+              ].map((txt, i) => (
+                <li key={i} style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--ink-soft)", lineHeight: 1.4 }}>
+                  <span style={{ color: "var(--health-deep)", fontWeight: 700, flexShrink: 0 }}>·</span>
+                  <span>{txt}</span>
+                </li>
+              ))}
+            </ul>
             <button onClick={() => navigate("diagnosticos", { create: true })} className="btn btn-health" style={{ marginTop: 14, height: 34, fontSize: 13 }}>
               <Icon name="plus" size={14}/> Criar pulse focal
             </button>
@@ -167,7 +179,7 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
           <div className="card" style={{ padding: 22 }}>
             <h3 style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 20, margin: "0 0 14px" }}>Plano de ação recomendado</h3>
             {(showAllActions ? ALL_ACTIONS : ALL_ACTIONS.slice(0, 3)).map(a => (
-              <ActionItem key={a.index} index={a.index} title={a.title} tag={a.tag} />
+              <ActionItem key={a.index} index={a.index} title={a.title} tag={a.tag} owner={a.owner} />
             ))}
             <button
               onClick={() => setShowAllActions(v => !v)}
@@ -220,12 +232,12 @@ const DimRow = ({ dim }) => {
   );
 };
 
-const ActionItem = ({ index, title, tag }) => (
+const ActionItem = ({ index, title, tag, owner }) => (
   <div style={{ display: "flex", gap: 12, padding: "10px 0", borderTop: index > 1 ? "1px dashed var(--line-strong)" : "none" }}>
     <span style={{ width: 22, height: 22, flexShrink: 0, borderRadius: 999, background: "var(--surface-sage)", color: "var(--health-deep)", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{index}</span>
     <div>
       <div style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)" }}>{title}</div>
-      <div style={{ fontSize: 11.5, color: "var(--ink-muted)", marginTop: 2 }}>{tag}</div>
+      <div style={{ fontSize: 11.5, color: "var(--ink-muted)", marginTop: 2 }}>{tag}{owner ? ` · ${owner}` : ""}</div>
     </div>
   </div>
 );
