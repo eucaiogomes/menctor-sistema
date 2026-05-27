@@ -175,3 +175,7 @@ input, textarea, select {
 .pill-neutral { background: var(--canvas-warm); color: var(--ink-soft); }
 
 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* Scrollbar oculta — carrossel */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
