@@ -13,17 +13,21 @@ const ADMIN_NAV = [
   { id: "admin-aprendizado",  icon: "book",     label: "Aprendizado" },
 ];
 
-const downloadPDF = () => {
+const downloadDummyPDF = (filename = "relatorio.pdf") => {
+  const base64PDF = "JVBERi0xLjQKJeLjz9MKNCAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDMgMCBSL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA1IDAgUj4+Pj4vTWVkaWFCb3hbMCAwIDU5NSA4NDJdL0NvbnRlbnRzIDYgMCBSL0dyb3VwPDwvUy9UcmFuc3BhcmVuY3kvQ1MvRGV2aWNlUkdCPj4+Pj4KZW5kb2JqCjUgMCBvYmoKPDwvVHlwZS9Gb250L1N1YnR5cGUvVHlwZTEvTmFtZS9GMS9CYXNlRm9udC9UaW1lcy1Sb21hbi9FbmNvZGluZy9XaW5BbnNpRW5jb2Rpbmc+PgplbmRvYmoKNiAwIG9iago8PC9MZW5ndGggNzY+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwMCA3MDAgVGQKKC9UZXN0ZSBQREYgQ29udGVudCIgKHNpbXBsZSBQREYgZmlsZSkKRVQKZW5kc3RyZWFtCmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9QYWdlcyA0IDAgUj4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUvUGFnZXMvS2lkc1s0IDAgUl0vQ291bnQgMS9NZWRpYUJveFswIDAgNTk1IDg0Ml0+PgplbmRvYmoKMSAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDMgMCBSL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA1IDAgUj4+Pj4vQ29udGVudHMgNiAwIFI+PgplbmRvYmoKc3RhcnR4cmVmCjY4NgolJUVPRgo=";
+  const binary = atob(base64PDF);
+  const array = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    array[i] = binary.charCodeAt(i);
+  }
+  const blob = new Blob([array], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
-
-  // arquivo real dentro da pasta public
-  link.href = "/relatorio_customizado_20260527_145008.pdf";
-
-  // nome do download
-  link.download = "relatorio_customizado_20260527_145008.pdf";
-
+  link.href = url;
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
+  window.URL.revokeObjectURL(url);
   document.body.removeChild(link);
 };
 
@@ -790,19 +794,17 @@ const RelatoriosFinaisScreen = ({ navigate }) => {
                       <button onClick={() => setPreviewInfo({ tipo: "psicossocial", avaliacao: a })} className="btn btn-soft" style={{ flex: 1, height: 34, fontSize: 12 }}>
                         <Icon name="eye" size={13} /> Ver
                       </button>
-                    <button
-  onClick={() => {
-    downloadPDF();
-
-    setExportMsg("Relatório Psicossocial iniciado para download.");
-
-    setTimeout(() => setExportMsg(""), 3000);
-  }}
-  className="btn btn-health"
-  style={{ flex: 1, height: 34, fontSize: 12 }}
->
-  <Icon name="download" size={13} /> PDF
-</button>
+                      <button
+                        onClick={() => {
+                          downloadDummyPDF(`relatorio_psicossocial_${a.id || "fake"}.pdf`);
+                          setExportMsg("Relatório Psicossocial iniciado para download.");
+                          setTimeout(() => setExportMsg(""), 3000);
+                        }}
+                        className="btn btn-health"
+                        style={{ flex: 1, height: 34, fontSize: 12 }}
+                      >
+                        <Icon name="download" size={13} /> PDF
+                      </button>
                     </div>
                   </div>
 
@@ -818,19 +820,17 @@ const RelatoriosFinaisScreen = ({ navigate }) => {
                       <button onClick={() => setPreviewInfo({ tipo: "matriz", avaliacao: a })} className="btn btn-soft" style={{ flex: 1, height: 34, fontSize: 12 }}>
                         <Icon name="eye" size={13} /> Ver
                       </button>
-                     <button
-  onClick={() => {
-    downloadPDF();
-
-    setExportMsg("Matriz NR-1 iniciada para download.");
-
-    setTimeout(() => setExportMsg(""), 3000);
-  }}
-  className="btn btn-accent"
-  style={{ flex: 1, height: 34, fontSize: 12 }}
->
-  <Icon name="download" size={13} /> PDF
-</button>
+                      <button
+                        onClick={() => {
+                          downloadDummyPDF(`matriz_nr1_${a.id || "fake"}.pdf`);
+                          setExportMsg("Matriz NR-1 iniciada para download.");
+                          setTimeout(() => setExportMsg(""), 3000);
+                        }}
+                        className="btn btn-accent"
+                        style={{ flex: 1, height: 34, fontSize: 12 }}
+                      >
+                        <Icon name="download" size={13} /> PDF
+                      </button>
                     </div>
                   </div>
 

@@ -790,19 +790,17 @@ const RelatoriosFinaisScreen = ({ navigate }) => {
                       <button onClick={() => setPreviewInfo({ tipo: "psicossocial", avaliacao: a })} className="btn btn-soft" style={{ flex: 1, height: 34, fontSize: 12 }}>
                         <Icon name="eye" size={13} /> Ver
                       </button>
-                    <button
-  onClick={() => {
-    downloadPDF();
-
-    setExportMsg("Relatório Psicossocial iniciado para download.");
-
-    setTimeout(() => setExportMsg(""), 3000);
-  }}
-  className="btn btn-health"
-  style={{ flex: 1, height: 34, fontSize: 12 }}
->
-  <Icon name="download" size={13} /> PDF
-</button>
+                      <button
+                        onClick={() => {
+                          downloadDummyPDF(`relatorio_psicossocial_${a.id || "fake"}.pdf`);
+                          setExportMsg("Relatório Psicossocial iniciado para download.");
+                          setTimeout(() => setExportMsg(""), 3000);
+                        }}
+                        className="btn btn-health"
+                        style={{ flex: 1, height: 34, fontSize: 12 }}
+                      >
+                        <Icon name="download" size={13} /> PDF
+                      </button>
                     </div>
                   </div>
 
@@ -818,19 +816,17 @@ const RelatoriosFinaisScreen = ({ navigate }) => {
                       <button onClick={() => setPreviewInfo({ tipo: "matriz", avaliacao: a })} className="btn btn-soft" style={{ flex: 1, height: 34, fontSize: 12 }}>
                         <Icon name="eye" size={13} /> Ver
                       </button>
-                     <button
-  onClick={() => {
-    downloadPDF();
-
-    setExportMsg("Matriz NR-1 iniciada para download.");
-
-    setTimeout(() => setExportMsg(""), 3000);
-  }}
-  className="btn btn-accent"
-  style={{ flex: 1, height: 34, fontSize: 12 }}
->
-  <Icon name="download" size={13} /> PDF
-</button>
+                      <button
+                        onClick={() => {
+                         downloadPDF();
+                          setExportMsg("Matriz NR-1 iniciada para download.");
+                          setTimeout(() => setExportMsg(""), 3000);
+                        }}
+                        className="btn btn-accent"
+                        style={{ flex: 1, height: 34, fontSize: 12 }}
+                      >
+                        <Icon name="download" size={13} /> PDF
+                      </button>
                     </div>
                   </div>
 
