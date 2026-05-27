@@ -10,8 +10,22 @@ const SETOR_DIMS = {
   "Comercial":      ["Influência no trabalho", "Comunidade social", "Significado do trabalho", "Conflito trabalho-família"],
 };
 
+const ALL_ACTIONS = [
+  { index: 1, title: "Revisão de carga horária — Operações",    tag: "Carga de trabalho" },
+  { index: 2, title: "Programa anti-burnout para liderança",     tag: "Burnout" },
+  { index: 3, title: "Workshop de gestão de estresse",            tag: "Estresse" },
+  { index: 4, title: "Rodada de escuta ativa com lideranças",    tag: "Qualidade da liderança" },
+  { index: 5, title: "Revisão de métricas de reconhecimento",    tag: "Reconhecimento" },
+  { index: 6, title: "Programa de equilíbrio trabalho-família",  tag: "Conflito trabalho-família" },
+  { index: 7, title: "Treinamento de gestão de ritmo",           tag: "Ritmo de trabalho" },
+  { index: 8, title: "Política de suporte social entre pares",   tag: "Suporte social" },
+];
+
 const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
   const [dimView, setDimView] = React.useState("ranking");
+  const [exportMsg, setExportMsg] = React.useState("");
+  const [showAllActions, setShowAllActions] = React.useState(false);
+  const [reuniaoToast, setReuniaoToast] = React.useState(false);
   const a = avaliacao || AVALIACOES_ATIVAS[0];
   const c = cliente || CLIENTES.find(x => x.name.startsWith(a.cliente)) || CLIENTES[0];
   const dims = COPSOQ_DIMS;
@@ -34,9 +48,16 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
           <h1 className="display" style={{ fontSize: 40, margin: 0 }}>{a.titulo}</h1>
           <p style={{ margin: "8px 0 0", color: "var(--ink-muted)", fontSize: 15 }}>{a.periodo} · {a.respondidos} de {a.alvo} respostas ({a.adesao}% adesão)</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-soft" style={{ height: 38 }}><Icon name="download" size={14}/> XLS</button>
-          <button className="btn btn-accent" style={{ height: 38 }}><Icon name="file" size={14}/> Relatório PDF</button>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => setExportMsg("Planilha XLS preparada para download.")} className="btn btn-soft" style={{ height: 38 }}><Icon name="download" size={14}/> XLS</button>
+          <button onClick={() => setExportMsg("Relatório PDF preparado para download.")} className="btn btn-accent" style={{ height: 38 }}><Icon name="file" size={14}/> Relatório PDF</button>
+          </div>
+          {exportMsg && (
+            <div style={{ padding: "7px 10px", borderRadius: 999, background: "var(--surface-sage)", color: "var(--health-deep)", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <Icon name="check" size={13}/> {exportMsg}
+            </div>
+          )}
         </div>
       </div>
 
@@ -137,7 +158,7 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
             <p style={{ margin: 0, fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 20, lineHeight: 1.3, color: "var(--ink)" }}>
               As três dimensões mais críticas estão concentradas no setor de <em>Operações</em>. Sugerimos um pulse focal em 14 dias.
             </p>
-            <button className="btn btn-health" style={{ marginTop: 14, height: 34, fontSize: 13 }}>
+            <button onClick={() => navigate("diagnosticos", { create: true })} className="btn btn-health" style={{ marginTop: 14, height: 34, fontSize: 13 }}>
               <Icon name="plus" size={14}/> Criar pulse focal
             </button>
           </div>
@@ -145,11 +166,15 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
           {/* Plano de ação */}
           <div className="card" style={{ padding: 22 }}>
             <h3 style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 20, margin: "0 0 14px" }}>Plano de ação recomendado</h3>
-            <ActionItem index={1} title="Revisão de carga horária — Operações" tag="Carga de trabalho" />
-            <ActionItem index={2} title="Programa anti-burnout para liderança" tag="Burnout" />
-            <ActionItem index={3} title="Workshop de gestão de estresse" tag="Estresse" />
-            <button className="btn btn-soft" style={{ width: "100%", justifyContent: "center", marginTop: 12, height: 34, fontSize: 13 }}>
-              Ver todos · 8 ações <Icon name="arrow-right" size={13} />
+            {(showAllActions ? ALL_ACTIONS : ALL_ACTIONS.slice(0, 3)).map(a => (
+              <ActionItem key={a.index} index={a.index} title={a.title} tag={a.tag} />
+            ))}
+            <button
+              onClick={() => setShowAllActions(v => !v)}
+              className="btn btn-soft"
+              style={{ width: "100%", justifyContent: "center", marginTop: 12, height: 34, fontSize: 13 }}
+            >
+              {showAllActions ? "Recolher" : "Ver todos · 8 ações"} <Icon name={showAllActions ? "chevron-down" : "arrow-right"} size={13} />
             </button>
           </div>
 
@@ -159,9 +184,18 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
             <h3 style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 22, margin: "8px 0 12px", color: "#FAF8F2" }}>
               Apresentar ao RH da {a.cliente}
             </h3>
-            <button className="btn" style={{ background: "var(--canvas)", color: "var(--ink)", height: 36 }}>
-              Agendar reunião <Icon name="arrow-right" size={14} />
+            <button
+              className="btn"
+              style={{ background: "var(--canvas)", color: "var(--ink)", height: 36 }}
+              onClick={() => { setReuniaoToast(true); setTimeout(() => setReuniaoToast(false), 2500); }}
+            >
+              <Icon name="calendar" size={14} /> Agendar reunião
             </button>
+            {reuniaoToast && (
+              <div style={{ marginTop: 10, padding: "7px 10px", borderRadius: 8, background: "rgba(250,248,242,0.12)", color: "#FAF8F2", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <Icon name="check" size={13} color="#FAF8F2" /> Convite enviado para o calendário
+              </div>
+            )}
           </div>
         </div>
       </div>
