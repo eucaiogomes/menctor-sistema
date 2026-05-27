@@ -215,19 +215,29 @@ const StepContato = ({ data, upd }) => (
 );
 
 // ─── STEP 3: Plano + portal ─────────────────────────────────
-const StepPlano = ({ data, upd }) => (
+const StepPlano = ({ data, upd }) => {
+  const [hoveredPlan, setHoveredPlan] = React.useState(null);
+  return (
   <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
     <div>
       <div className="eyebrow" style={{ marginBottom: 12 }}>Plano contratado</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
         {PLANOS.map(p => {
           const active = data.plano === p.id;
+          const hovered = hoveredPlan === p.id && !active;
           return (
-            <button key={p.id} onClick={() => { upd("plano", p.id); upd("mrr", p.preco); }} className="card" style={{
+            <button key={p.id}
+              onClick={() => { upd("plano", p.id); upd("mrr", p.preco); }}
+              onMouseEnter={() => setHoveredPlan(p.id)}
+              onMouseLeave={() => setHoveredPlan(null)}
+              className="card" style={{
               padding: 18, textAlign: "left", position: "relative",
-              border: active ? "1px solid var(--health)" : "1px solid transparent",
+              border: active ? "1px solid var(--health)" : hovered ? "1px solid var(--line-strong)" : "1px solid transparent",
               outline: active ? "3px solid var(--surface-sage)" : "none",
-              display: "flex", flexDirection: "column", gap: 6
+              display: "flex", flexDirection: "column", gap: 6,
+              transform: hovered ? "translateY(-2px)" : "translateY(0)",
+              boxShadow: hovered ? "var(--shadow-card)" : undefined,
+              transition: "border-color .15s, transform .15s, box-shadow .15s"
             }}>
               {p.destaque && <span style={{ position: "absolute", top: -10, right: 12, padding: "3px 9px", background: "var(--orange)", color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", borderRadius: 999 }}>Mais usado</span>}
               <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>{p.nome}</div>
@@ -275,7 +285,8 @@ const StepPlano = ({ data, upd }) => (
       </div>
     </Field>
   </div>
-);
+  );
+};
 
 // ─── SUCCESS ─────────────────────────────────────────────────
 const SuccessScreen = ({ data, onClose }) => {
