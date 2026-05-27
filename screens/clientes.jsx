@@ -3,9 +3,100 @@
 // ════════════════════════════════════════════════════════════
 // CLIENTES — unifies Leads/Pipeline + Carteira ativa
 // ════════════════════════════════════════════════════════════
-const ClientesScreen = ({ navigate, initialTab }) => {
-  const [tab, setTab] = React.useState(initialTab || "carteira");
+// ─── Invite modal ───────────────────────────────────────────
+const InviteModal = ({ onClose }) => {
+  const [nome, setNome] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [sent, setSent] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSend = () => {
+    if (!email.trim()) return;
+    setLoading(true);
+    setTimeout(() => { setLoading(false); setSent(true); }, 1200);
+  };
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 9999,
+      background: "rgba(0,0,0,0.38)", backdropFilter: "blur(4px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 24,
+    }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: "var(--canvas)", borderRadius: 20,
+        padding: "32px 36px", width: "100%", maxWidth: 440,
+        boxShadow: "0 24px 64px rgba(0,0,0,0.18), 0 0 0 1px var(--line)",
+        animation: "slideUp .22s ease",
+      }}>
+        {sent ? (
+          <div style={{ textAlign: "center", padding: "12px 0 4px" }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 999, margin: "0 auto 18px",
+              background: "var(--surface-sage)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Icon name="check" size={26} color="var(--health-deep)" strokeWidth={2} />
+            </div>
+            <div style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 22, marginBottom: 8 }}>Convite enviado!</div>
+            <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 28 }}>
+              <strong>{email}</strong> receberá o link de acesso em instantes.
+            </div>
+            <button onClick={onClose} className="btn btn-primary" style={{ width: "100%", height: 44, justifyContent: "center", fontSize: 14 }}>
+              Fechar
+            </button>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+              <div>
+                <div style={{ fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 20 }}>Convidar por e-mail</div>
+                <div style={{ fontSize: 13, color: "var(--ink-muted)", marginTop: 3 }}>O cliente receberá um link para acessar o portal.</div>
+              </div>
+              <button onClick={onClose} style={{ color: "var(--ink-muted)", padding: 4, borderRadius: 8 }}>
+                <Icon name="x" size={18} />
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-soft)", letterSpacing: "0.04em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Nome</label>
+                <input
+                  value={nome}
+                  onChange={e => setNome(e.target.value)}
+                  placeholder="Ex.: Ana Beatriz"
+                  style={{ width: "100%", height: 42, padding: "0 14px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 14, background: "var(--surface)", color: "var(--ink)" }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-soft)", letterSpacing: "0.04em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>E-mail *</label>
+                <input
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="cliente@empresa.com.br"
+                  type="email"
+                  style={{ width: "100%", height: 42, padding: "0 14px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 14, background: "var(--surface)", color: "var(--ink)" }}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleSend}
+              disabled={!email.trim() || loading}
+              className="btn btn-accent"
+              style={{ width: "100%", height: 44, justifyContent: "center", fontSize: 14, marginTop: 24, opacity: (!email.trim() || loading) ? 0.6 : 1 }}>
+              {loading ? "Enviando…" : <><Icon name="send" size={15} /> Enviar convite</>}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ClientesScreen = ({ navigate }) => {
   const [creating, setCreating] = React.useState(false);
+  const [inviting, setInviting] = React.useState(false);
 
   if (creating) {
     return <window.NovoClienteFullPage onClose={() => setCreating(false)} />;
@@ -13,27 +104,27 @@ const ClientesScreen = ({ navigate, initialTab }) => {
 
   return (
     <Page>
+      {inviting && <InviteModal onClose={() => setInviting(false)} />}
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
         <div>
           <div className="eyebrow" style={{ marginBottom: 8 }}>Carteira comercial</div>
           <h1 className="display" style={{ fontSize: 44, margin: 0 }}>Clientes</h1>
           <p style={{ margin: "10px 0 0", fontSize: 15, color: "var(--ink-muted)", maxWidth: 560 }}>
-            Pipeline comercial e carteira ativa — tudo em um lugar.
+            Pipeline comercial e gestão de propostas.
           </p>
         </div>
-        <button onClick={() => setCreating(true)} className="btn btn-accent" style={{ height: 42 }}>
-          <Icon name="plus" size={16} /> Novo cliente
-        </button>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => setInviting(true)} className="btn btn-soft" style={{ height: 42 }}>
+            <Icon name="send" size={15} /> Convidar por e-mail
+          </button>
+          <button onClick={() => setCreating(true)} className="btn btn-accent" style={{ height: 42 }}>
+            <Icon name="plus" size={16} /> Novo cliente
+          </button>
+        </div>
       </div>
 
-      {/* Sub-tabs */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 28, borderBottom: "1px solid var(--line)" }}>
-        <SubTab id="carteira"  label="Carteira ativa" count={CLIENTES.filter(c=>c.status==="ativo").length} active={tab==="carteira"} onClick={setTab} />
-        <SubTab id="pipeline"  label="Pipeline comercial" count={Object.values(LEADS_PIPELINE).flat().length} active={tab==="pipeline"} onClick={setTab} />
-      </div>
-
-      {tab === "carteira" && <CarteiraView navigate={navigate} />}
-      {tab === "pipeline" && <PipelineView navigate={navigate} />}
+      <PipelineView navigate={navigate} />
     </Page>
   );
 };
