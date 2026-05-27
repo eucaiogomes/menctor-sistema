@@ -1,14 +1,3 @@
 {
-  "buildCommand": "echo 'Menctor System - Frontend only'",
-  "outputDirectory": ".",
-  "framework": "html",
-  "env": {
-    "VITE_API_URL": "http://localhost:5000",
-    "VITE_RELATORIO_API_URL": "http://localhost:5000/api"
-  },
-  "git": {
-    "deploymentEnabled": {
-      "main": true
-    }
-  }
+  "cleanUrls": true
 }
