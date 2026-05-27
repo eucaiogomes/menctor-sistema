@@ -113,6 +113,7 @@ const GROUPING_DATA = { setor: SETORES, unidade: UNIDADES, turno: TURNOS };
 
 const AdminHome = ({ navigate }) => {
   const [sectorGrouping, setSectorGrouping] = React.useState("setor");
+  const [lembreteToast, setLembreteToast] = React.useState(false);
   const grupoAtivo = GROUPING_DATA[sectorGrouping];
   const media = SETORES.reduce((s,x) => s + x.risco * x.colab, 0) / SETORES.reduce((s,x) => s + x.colab, 0);
   const loghausAvaliacao = AVALIACOES_ATIVAS.find(a => a.cliente === "Loghaus" && a.status === "Em campo") || AVALIACOES_ATIVAS.find(a => a.cliente === "Loghaus");
@@ -139,7 +140,15 @@ const AdminHome = ({ navigate }) => {
             <strong>28 colaboradores ainda não responderam</strong> a Pesquisa de Clima. Que tal enviar um lembrete?
           </div>
         </div>
-        <button className="btn btn-accent" style={{ height: 36 }}>Enviar lembrete <Icon name="send" size={13}/></button>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 0 }}>
+          <button className="btn btn-accent" style={{ height: 36 }} onClick={() => { setLembreteToast(true); setTimeout(() => setLembreteToast(false), 3000); }}>Enviar lembrete <Icon name="send" size={13}/></button>
+          {lembreteToast && (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--health-deep)" }}>
+              <Icon name="check" size={14} color="var(--health-deep)" />
+              Lembrete enviado para 28 colaboradores pendentes
+            </div>
+          )}
+        </div>
       </div>
 
       {/* KPI strip */}
