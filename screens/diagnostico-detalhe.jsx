@@ -4,7 +4,14 @@
 // DIAGNOSTICO DETALHE — replaces the pie-chart heavy dashboard
 // Calm, readable, prioritized by risk
 // ════════════════════════════════════════════════════════════
+const SETOR_DIMS = {
+  "Operações":      ["Carga de trabalho", "Ritmo de trabalho", "Burnout", "Estresse"],
+  "Administrativo": ["Reconhecimento", "Suporte social", "Qualidade da liderança", "Justiça e respeito"],
+  "Comercial":      ["Influência no trabalho", "Comunidade social", "Significado do trabalho", "Conflito trabalho-família"],
+};
+
 const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
+  const [dimView, setDimView] = React.useState("ranking");
   const a = avaliacao || AVALIACOES_ATIVAS[0];
   const c = cliente || CLIENTES.find(x => x.name.startsWith(a.cliente)) || CLIENTES[0];
   const dims = COPSOQ_DIMS;
@@ -67,16 +74,56 @@ const DiagnosticoDetalheScreen = ({ navigate, avaliacao, cliente }) => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
             <h2 className="display" style={{ fontSize: 26, margin: 0 }}>Dimensões COPSOQ II</h2>
             <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--canvas-warm)", borderRadius: 999 }}>
-              <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: "var(--surface)", boxShadow: "var(--shadow-card)" }}>Ranking</button>
-              <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, color: "var(--ink-muted)" }}>Por setor</button>
-              <button style={{ padding: "4px 12px", borderRadius: 999, fontSize: 12, color: "var(--ink-muted)" }}>Por turno</button>
+              {["ranking", "setor", "turno"].map(v => (
+                <button key={v} onClick={() => setDimView(v)} style={{
+                  padding: "4px 12px", borderRadius: 999, fontSize: 12,
+                  fontWeight: dimView === v ? 600 : 400,
+                  background: dimView === v ? "var(--surface)" : "transparent",
+                  boxShadow: dimView === v ? "var(--shadow-card)" : "none",
+                  color: dimView === v ? "var(--ink)" : "var(--ink-muted)",
+                  transition: "background .15s",
+                }}>
+                  {{ ranking: "Ranking", setor: "Por setor", turno: "Por turno" }[v]}
+                </button>
+              ))}
             </div>
           </div>
           <p style={{ margin: "0 0 24px", fontSize: 13, color: "var(--ink-muted)" }}>Ordenadas do maior risco para o menor. Marca vertical = limite de ação NR-1.</p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {dims.map(d => <DimRow key={d.name} dim={d} />)}
-          </div>
+          {dimView === "ranking" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {dims.map(d => <DimRow key={d.name} dim={d} />)}
+            </div>
+          )}
+          {dimView === "setor" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              {Object.entries(SETOR_DIMS).map(([setor, dimNames]) => {
+                const setorDims = dimNames.map(n => dims.find(d => d.name === n)).filter(Boolean);
+                const avg = setorDims.reduce((s, d) => s + d.v, 0) / setorDims.length;
+                const riskColor = avg >= 2.5 ? "var(--coral)" : avg >= 1.5 ? "var(--amber)" : "var(--health)";
+                return (
+                  <div key={setor}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-soft)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{setor}</span>
+                      <span style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 16, color: riskColor }}>{avg.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {setorDims.map(d => <DimRow key={d.name} dim={d} />)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {dimView === "turno" && (
+            <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ink-muted)" }}>
+              <Icon name="calendar" size={32} strokeWidth={1.2} color="var(--line-strong)" />
+              <div className="display" style={{ fontSize: 18, margin: "14px 0 8px", color: "var(--ink)" }}>Disponível no próximo diagnóstico</div>
+              <p style={{ fontSize: 13, margin: 0, maxWidth: 320, marginInline: "auto", lineHeight: 1.5 }}>
+                A quebra por turno requer que a pesquisa inclua a dimensão de horário. Disponível a partir do COPSOQ Anual 2026.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Side col: insights + plano de ação */}
