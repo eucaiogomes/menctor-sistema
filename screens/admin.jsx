@@ -261,14 +261,16 @@ const AStat = ({ label, value, sub, icon }) => (
 // ════════════════════════════════════════════════════════════
 
 const COLABORADORES = [
-  { id: 1, nome: "Mariana Aguiar",    cargo: "Gerente de RH",         setor: "Administrativo", perfil: "Admin",  status: "ativo",   risco: 1.8, adesao: "100%" },
-  { id: 2, nome: "Pedro Santos",      cargo: "Coordenador de Frota",  setor: "Operações",      perfil: "Líder",  status: "ativo",   risco: 2.7, adesao: "100%" },
-  { id: 3, nome: "Camila Lopes",      cargo: "Analista comercial",    setor: "Comercial",      perfil: "Colab.", status: "ativo",   risco: 2.1, adesao: "100%" },
-  { id: 4, nome: "Roberto Tavares",   cargo: "Motorista CNH-E",        setor: "Logística",      perfil: "Colab.", status: "ativo",   risco: 2.3, adesao: "67%"  },
-  { id: 5, nome: "Daniela Marques",   cargo: "Assistente operacional", setor: "Operações",      perfil: "Colab.", status: "ativo",   risco: null,adesao: "—"    },
-  { id: 6, nome: "André Pinheiro",    cargo: "Dev. backend",           setor: "Tecnologia",     perfil: "Colab.", status: "convite", risco: null,adesao: "—"    },
-  { id: 7, nome: "Letícia Brandão",   cargo: "Analista financeira",   setor: "Administrativo", perfil: "Colab.", status: "ativo",   risco: 2.0, adesao: "100%" },
-  { id: 8, nome: "Bruno Tavares",     cargo: "Supervisor logístico",  setor: "Logística",      perfil: "Líder",  status: "ativo",   risco: 1.9, adesao: "100%" },
+  { id: "c1",  nome: "Mariana Aguiar",    cargo: "Coordenadora de RH",        setor: "Operações",      ultimoDiag: "12/05/2026", risk: 2.35, status: "ativo"    },
+  { id: "c2",  nome: "Pedro Santos",      cargo: "Analista Logístico",         setor: "Operações",      ultimoDiag: "12/05/2026", risk: 3.10, status: "ativo"    },
+  { id: "c3",  nome: "Camila Ferreira",   cargo: "Supervisora de Depósito",    setor: "Operações",      ultimoDiag: "12/05/2026", risk: 2.80, status: "ativo"    },
+  { id: "c4",  nome: "Lucas Prado",       cargo: "Motorista Sênior",           setor: "Distribuição",   ultimoDiag: "12/05/2026", risk: 1.95, status: "ativo"    },
+  { id: "c5",  nome: "Renata Oliveira",   cargo: "Analista Financeira",        setor: "Administrativo", ultimoDiag: "12/05/2026", risk: 1.60, status: "ativo"    },
+  { id: "c6",  nome: "Bruno Carvalho",    cargo: "Técnico de TI",              setor: "Administrativo", ultimoDiag: null,         risk: null, status: "pendente" },
+  { id: "c7",  nome: "Thais Mendonça",    cargo: "Operadora de Empilhadeira",  setor: "Operações",      ultimoDiag: "12/05/2026", risk: 2.55, status: "ativo"    },
+  { id: "c8",  nome: "Rodrigo Almeida",   cargo: "Coordenador Comercial",      setor: "Comercial",      ultimoDiag: null,         risk: null, status: "afastado" },
+  { id: "c9",  nome: "Isabela Nunes",     cargo: "Assistente de RH",           setor: "Administrativo", ultimoDiag: "12/05/2026", risk: 1.45, status: "ativo"    },
+  { id: "c10", nome: "Felipe Monteiro",   cargo: "Auxiliar de Logística",      setor: "Distribuição",   ultimoDiag: "12/05/2026", risk: 2.90, status: "ativo"    },
 ];
 
 const AdminColaboradores = () => {
@@ -307,34 +309,35 @@ const AdminColaboradores = () => {
 
       {/* Table */}
       <div className="card">
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr 0.8fr 0.8fr 0.8fr auto", gap: 16, padding: "14px 22px", borderBottom: "1px solid var(--line)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-muted)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.4fr 1fr 1fr 0.9fr 0.9fr auto", gap: 16, padding: "14px 22px", borderBottom: "1px solid var(--line)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-muted)" }}>
           <span>Colaborador</span>
           <span>Cargo</span>
           <span>Setor</span>
-          <span>Perfil</span>
+          <span>Último diag.</span>
           <span>Risco NR-1</span>
-          <span>Adesão</span>
+          <span>Situação</span>
           <span style={{ width: 32 }}></span>
         </div>
-        {COLABORADORES.map((c, i) => (
-          <button key={c.id} onClick={() => setEditing(c)} style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr 0.8fr 0.8fr 0.8fr auto", gap: 16, padding: "14px 22px", borderTop: i > 0 ? "1px solid var(--line)" : "none", textAlign: "left", width: "100%", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ width: 34, height: 34, borderRadius: 999, background: "var(--surface-sage)", color: "var(--health-deep)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 15 }}>
-                {c.nome.split(" ").map(x => x[0]).slice(0,2).join("")}
-              </span>
-              <div>
+        {COLABORADORES.map((c, i) => {
+          const statusColor = c.status === "ativo" ? "var(--health-deep)" : c.status === "afastado" ? "var(--coral)" : "var(--amber)";
+          const statusLabel = c.status === "ativo" ? "Ativo" : c.status === "afastado" ? "Afastado" : "Pendente";
+          return (
+            <button key={c.id} onClick={() => setEditing(c)} style={{ display: "grid", gridTemplateColumns: "2fr 1.4fr 1fr 1fr 0.9fr 0.9fr auto", gap: 16, padding: "14px 22px", borderTop: i > 0 ? "1px solid var(--line)" : "none", textAlign: "left", width: "100%", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ width: 34, height: 34, borderRadius: 999, background: "var(--surface-sage)", color: "var(--health-deep)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: 15 }}>
+                  {c.nome.split(" ").map(x => x[0]).slice(0,2).join("")}
+                </span>
                 <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>{c.nome}</div>
-                {c.status === "convite" && <div style={{ fontSize: 11, color: "var(--amber)", marginTop: 2 }}>Convite pendente</div>}
               </div>
-            </div>
-            <span style={{ fontSize: 13.5, color: "var(--ink-soft)" }}>{c.cargo}</span>
-            <span style={{ fontSize: 13.5, color: "var(--ink-soft)" }}>{c.setor}</span>
-            <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>{c.perfil}</span>
-            <span>{c.risco ? <span className={`pill ${riskPill(c.risco)}`} style={{ fontSize: 10.5 }}>{c.risco.toFixed(1)}</span> : <span style={{ color: "var(--ink-faint)", fontSize: 13 }}>—</span>}</span>
-            <span style={{ fontSize: 13, color: c.adesao === "100%" ? "var(--health-deep)" : "var(--ink-soft)" }}>{c.adesao}</span>
-            <span style={{ width: 32, color: "var(--ink-muted)" }}><Icon name="chevron-right" size={16}/></span>
-          </button>
-        ))}
+              <span style={{ fontSize: 13.5, color: "var(--ink-soft)" }}>{c.cargo}</span>
+              <span style={{ fontSize: 13.5, color: "var(--ink-soft)" }}>{c.setor}</span>
+              <span style={{ fontSize: 13, color: c.ultimoDiag ? "var(--ink-soft)" : "var(--ink-faint)" }}>{c.ultimoDiag || "—"}</span>
+              <span>{c.risk != null ? <span className={`pill ${riskPill(c.risk)}`} style={{ fontSize: 10.5 }}>{c.risk.toFixed(2)}</span> : <span style={{ color: "var(--ink-faint)", fontSize: 13 }}>—</span>}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: statusColor }}>{statusLabel}</span>
+              <span style={{ width: 32, color: "var(--ink-muted)" }}><Icon name="chevron-right" size={16}/></span>
+            </button>
+          );
+        })}
       </div>
 
       {editing && <UserDrawer user={editing} onClose={() => setEditing(null)} />}
@@ -380,15 +383,17 @@ const UserDrawer = ({ user, onClose }) => {
           ]} />}
           {tab === "acesso" && <>
             <DrawerSection rows={[
-              ["Perfil de acesso", user.perfil],
-              ["Status", user.status === "ativo" ? "Ativo" : "Convite pendente"],
+              ["Perfil de acesso", "Colaborador"],
+              ["Status", user.status === "ativo" ? "Ativo" : user.status === "afastado" ? "Afastado" : "Convite pendente"],
+              ["Último diagnóstico", user.ultimoDiag || "Não realizado"],
+              ["Risco NR-1", user.risk != null ? user.risk.toFixed(2) : "—"],
               ["Último acesso", "Hoje · 09:14"],
             ]} />
             <div style={{ marginTop: 24 }}>
               <div className="eyebrow" style={{ marginBottom: 12 }}>Permissões</div>
               {["Responder diagnósticos","Ver próprio relatório","Acessar trilhas","Gerenciar equipe"].map((p,i) => (
                 <label key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "var(--surface)", border: "1px solid var(--line)", marginBottom: 6 }}>
-                  <input type="checkbox" defaultChecked={i < 3 || user.perfil === "Líder"} style={{ accentColor: "var(--health)" }}/>
+                  <input type="checkbox" defaultChecked={i < 3} style={{ accentColor: "var(--health)" }}/>
                   <span style={{ fontSize: 13.5 }}>{p}</span>
                 </label>
               ))}
