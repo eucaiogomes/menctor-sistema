@@ -16,11 +16,11 @@ const ADMIN_NAV = [
 const downloadPDF = () => {
   const link = document.createElement("a");
 
-  // arquivo real dentro da pasta public
-  link.href = "/relatorio_customizado_20260527_145008.pdf";
+  // arquivo real no projeto
+  link.href = "relatorio_psicossocial.pdf";
 
   // nome do download
-  link.download = "relatorio_customizado_20260527_145008.pdf";
+  link.download = "relatorio_psicossocial.pdf";
 
   document.body.appendChild(link);
   link.click();
